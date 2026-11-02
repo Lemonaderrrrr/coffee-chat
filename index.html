@@ -1,0 +1,1141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Coffee Chat</title>
+<meta name="description" content="Pick a spot for our coffee chat.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ───────── tokens ───────── */
+:root{
+  --bg:#FAF5EE; --surface:#FFFFFF; --surface-2:#F3EADF; --ink:#2A1F18; --ink-2:#7A6A5D; --line:#EADFD2;
+  --brand:#6F4325; --brand-2:#A86B3C; --on-brand:#FFF8F1;
+  --sea:#2C83AE; --gold:#C08526; --noir:#2F2A26; --sage:#4F8A5B;
+  --o-uci:#5B5BD6; --o-spec:#D2467F; --o-you:#0E9384;
+  --t-light:#2E9E5B; --t-mid:#E3A008; --t-heavy:#D64545;
+  --land:#F2E9DD; --land-dot:#E4D6C4; --ocean:#D5E8F2; --ocean-line:#A7CDE1;
+  --shadow-1:0 1px 2px rgba(42,31,24,.06),0 6px 20px rgba(42,31,24,.07);
+  --shadow-2:0 2px 6px rgba(42,31,24,.08),0 18px 44px rgba(42,31,24,.16);
+  --scrim:rgba(30,20,14,.42);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#14100D; --surface:#1F1914; --surface-2:#2A221C; --ink:#F4EADF; --ink-2:#B3A291; --line:#3A2F27;
+    --brand:#D9A06A; --brand-2:#E8B888; --on-brand:#1A120C;
+    --sea:#5AB0D8; --gold:#E2AE4C; --noir:#D3CAC0; --sage:#86C292;
+    --o-uci:#9393F2; --o-spec:#F07CAC; --o-you:#3CC7B4;
+    --t-light:#4CC27D; --t-mid:#F2B935; --t-heavy:#F06B6B;
+    --land:#211A15; --land-dot:#2E251E; --ocean:#122A36; --ocean-line:#24506A;
+    --shadow-1:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35);
+    --shadow-2:0 2px 6px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.5);
+    --scrim:rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14100D; --surface:#1F1914; --surface-2:#2A221C; --ink:#F4EADF; --ink-2:#B3A291; --line:#3A2F27;
+  --brand:#D9A06A; --brand-2:#E8B888; --on-brand:#1A120C;
+  --sea:#5AB0D8; --gold:#E2AE4C; --noir:#D3CAC0; --sage:#86C292;
+  --o-uci:#9393F2; --o-spec:#F07CAC; --o-you:#3CC7B4;
+  --t-light:#4CC27D; --t-mid:#F2B935; --t-heavy:#F06B6B;
+  --land:#211A15; --land-dot:#2E251E; --ocean:#122A36; --ocean-line:#24506A;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35);
+  --shadow-2:0 2px 6px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.5);
+  --scrim:rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+
+/* ───────── base ───────── */
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+.serif{font-family:Fraunces,Georgia,serif;font-optical-sizing:auto}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;display:block}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2.5px solid var(--brand-2);outline-offset:2px;border-radius:10px}
+
+.app{max-width:1040px;margin:0 auto;padding:0 16px calc(110px + env(safe-area-inset-bottom))}
+header.top{height:64px;display:flex;align-items:center;gap:10px}
+.icon-btn{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-1);transition:transform .15s}
+.icon-btn:active{transform:scale(.94)}
+.icon-btn .i{width:20px;height:20px}
+.mark{display:flex;align-items:center;gap:8px;color:var(--brand);font-weight:600}
+.mark .i{width:22px;height:22px}
+.spacer{flex:1}
+.preview-pill{font-size:11.5px;color:var(--ink-2);border:1px dashed var(--line);padding:4px 9px;border-radius:99px}
+#backBtn{visibility:hidden}
+body[data-screen="pick"] #backBtn, body[data-screen="done"] #backBtn{visibility:visible}
+#tourBtn{position:relative;color:var(--brand)}
+#tourBtn.pulse::after{content:"";position:absolute;inset:-4px;border-radius:17px;border:2px solid var(--brand-2);animation:ring 1.8s ease-out 3}
+@keyframes ring{0%{opacity:.9;transform:scale(.92)}100%{opacity:0;transform:scale(1.22)}}
+
+.screen{display:none}
+.screen.active{display:block;animation:enter .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ───────── home ───────── */
+.hero{text-align:center;padding:4px 0 6px}
+.glass{width:112px;height:140px;margin:0 auto 6px;display:block}
+.glass .ice{animation:bob 3.2s ease-in-out infinite alternate}
+.glass .ice:nth-child(2){animation-delay:-1.1s}
+.glass .ice:nth-child(3){animation-delay:-2.2s}
+@keyframes bob{from{transform:translateY(-2px) rotate(-2deg)}to{transform:translateY(3px) rotate(3deg)}}
+.glass .drop{animation:drip 4s ease-in infinite}
+.glass .drop:nth-of-type(2){animation-delay:-2s}
+@keyframes drip{0%,60%{transform:translateY(0);opacity:.8}100%{transform:translateY(14px);opacity:0}}
+.hello{font-size:15px;color:var(--ink-2);margin:4px 0 0}
+h1{font-family:Fraunces,Georgia,serif;font-weight:650;font-size:clamp(30px,8vw,40px);letter-spacing:-.01em;margin:2px 0 14px;line-height:1.1}
+.when{display:inline-flex;align-items:center;gap:9px;padding:10px 12px 10px 14px;border-radius:99px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-1);font-weight:600;font-variant-numeric:tabular-nums}
+.when .i{color:var(--brand)}
+.when .edit{width:28px;height:28px;border-radius:99px;display:grid;place-items:center;background:var(--surface-2);color:var(--ink-2)}
+.when .edit .i{width:15px;height:15px;color:inherit}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px;margin:26px auto 0}
+.choice{display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 12px 18px;border-radius:24px;background:var(--surface);border:1.5px solid var(--line);box-shadow:var(--shadow-1);transition:transform .15s,border-color .2s,box-shadow .2s;text-align:center}
+.choice:hover{border-color:var(--brand-2);box-shadow:var(--shadow-2)}
+.choice:active{transform:scale(.97)}
+.choice .ico{width:62px;height:62px;border-radius:20px;display:grid;place-items:center;background:color-mix(in srgb,var(--brand) 12%,transparent);color:var(--brand)}
+.choice .ico .i{width:30px;height:30px}
+.choice.alt .ico{background:color-mix(in srgb,var(--o-spec) 12%,transparent);color:var(--o-spec)}
+.choice b{font-size:16px}
+.choice small{color:var(--ink-2);font-size:12.5px;display:flex;align-items:center;gap:5px}
+.choice small .i{width:14px;height:14px}
+.dots3{display:flex;gap:4px}
+.dots3 i{width:8px;height:8px;border-radius:99px;display:block}
+.fallback{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--ink-2);font-size:12.5px;margin-top:22px}
+.fallback .i{width:14px;height:14px}
+
+/* ───────── pick ───────── */
+.pick-grid{display:grid;gap:14px}
+@media (min-width:900px){
+  .pick-grid{grid-template-columns:400px 1fr;gap:22px;align-items:start}
+  .mapbox{position:sticky;top:14px;height:calc(100vh - 150px)!important;max-height:640px}
+}
+.mapbox{position:relative;height:clamp(220px,36vh,320px);border-radius:22px;overflow:hidden;background:var(--land);border:1px solid var(--line);box-shadow:var(--shadow-1)}
+#map{width:100%;height:100%;display:block}
+.map-legend{position:absolute;left:10px;top:10px;display:flex;gap:6px;flex-wrap:wrap;max-width:70%}
+.lg{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:4px 8px 4px 6px;border-radius:99px;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(6px);border:1px solid var(--line)}
+.lg i{width:9px;height:9px;border-radius:99px;display:block}
+.locate{position:absolute;right:10px;top:10px}
+.locate.on{color:var(--o-you);border-color:var(--o-you)}
+.locate.busy .i{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.est{position:absolute;right:10px;bottom:10px;font-size:11px;color:var(--ink-2);background:color-mix(in srgb,var(--surface) 85%,transparent);padding:3px 8px;border-radius:99px;border:1px solid var(--line)}
+.est[hidden]{display:none}
+
+.cards-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2);margin:2px 2px 10px}
+.cards-head .lead{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink)}
+.cards-head .lead .i{width:16px;height:16px;color:var(--brand)}
+.cards-head .lead{padding:5px 10px 5px 8px;border-radius:99px;background:var(--surface);border:1px solid var(--line)}
+.cards-head .lead .pen{width:13px;height:13px;color:var(--ink-2)}
+.tl{display:inline-flex;align-items:center;gap:4px}
+.tl i{width:8px;height:8px;border-radius:99px;display:block}
+.cards{display:grid;gap:12px}
+
+.card{position:relative;background:var(--surface);border:1.5px solid var(--line);border-radius:22px;padding:14px 16px 14px;box-shadow:var(--shadow-1);cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .15s,opacity .2s;outline:none}
+.card:hover{box-shadow:var(--shadow-2)}
+.card:active{transform:scale(.99)}
+.card.sel{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent),var(--shadow-2)}
+.card.dim{opacity:.62}
+.card.closed{opacity:.45;cursor:not-allowed}
+.card:focus-visible{box-shadow:0 0 0 3px var(--brand-2)}
+.ch{display:flex;align-items:center;gap:12px}
+.badge{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);flex:none}
+.badge .i{width:24px;height:24px}
+.ttl{min-width:0}
+.ttl h3{font-family:Fraunces,Georgia,serif;font-weight:650;font-size:19px;margin:0;line-height:1.15}
+.ttl span{display:block;font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch .acts{margin-left:auto;display:flex;align-items:center;gap:8px}
+.ext{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:var(--ink-2);background:var(--surface-2);text-decoration:none}
+.ext .i{width:16px;height:16px}
+.radio{width:26px;height:26px;border-radius:99px;border:2px solid var(--line);display:grid;place-items:center;color:transparent;transition:all .2s}
+.card.sel .radio{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.radio .i{width:15px;height:15px;stroke-width:2.6}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 12px;padding:0;list-style:none}
+.chips li{display:inline-flex;align-items:center;gap:5px;padding:5px 9px 5px 7px;border-radius:99px;background:var(--surface-2);font-size:12.5px;font-weight:500}
+.chips li .i{width:14px;height:14px;color:var(--accent)}
+.closed-tag{display:none;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--t-heavy);margin:-4px 0 10px}
+.card.closed .closed-tag{display:flex}
+.closed-tag .i{width:15px;height:15px}
+
+.drive{display:grid;gap:9px;border-top:1px dashed var(--line);padding-top:12px}
+.drow{display:grid;grid-template-columns:96px 1fr 58px;align-items:center;column-gap:10px;row-gap:2px}
+.dl{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;min-width:0}
+.dl .t{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:color-mix(in srgb,var(--oc) 15%,transparent);color:var(--oc);flex:none}
+.dl .t .i{width:14px;height:14px}
+.track{height:9px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.track i{display:block;height:100%;width:var(--w,0%);border-radius:inherit;background:var(--tc,var(--ink-2));transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.track.load i{width:40%;background:linear-gradient(90deg,transparent,var(--line),transparent);animation:shimmer 1.1s linear infinite}
+@keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
+.dm{text-align:right;font-weight:600;font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dm small{font-weight:500;font-size:11px;color:var(--ink-2);margin-left:1px}
+.ds{grid-column:2/4;font-size:11.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;gap:10px}
+.ds span{display:inline-flex;align-items:center;gap:4px}
+.ds .i{width:12px;height:12px}
+.addme{grid-column:2/4;display:flex;align-items:center;gap:6px;justify-content:center;font-size:12.5px;font-weight:600;color:var(--o-you);border:1.5px dashed color-mix(in srgb,var(--o-you) 45%,transparent);border-radius:12px;padding:6px 10px}
+.addme .i{width:14px;height:14px}
+
+/* dock */
+.dock{position:fixed;left:0;right:0;bottom:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(to bottom,transparent,var(--bg) 34%);pointer-events:none;z-index:20;display:none}
+body[data-screen="pick"] .dock{display:block}
+.dock-in{max-width:1040px;margin:0 auto;display:flex;justify-content:flex-end;pointer-events:auto}
+.send{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:220px;height:56px;padding:0 22px;border-radius:18px;background:var(--brand);color:var(--on-brand);font-weight:600;font-size:16px;box-shadow:var(--shadow-2);transition:transform .15s,opacity .2s,background .2s}
+.send .i{width:20px;height:20px}
+.send:active{transform:scale(.97)}
+.send:disabled{opacity:.38;cursor:not-allowed;box-shadow:none}
+.send .pick-mini{display:none;width:26px;height:26px;border-radius:9px;place-items:center;background:color-mix(in srgb,var(--on-brand) 20%,transparent)}
+.send.has .pick-mini{display:grid}
+.send.busy .i.go{animation:spin 1s linear infinite}
+@media (max-width:640px){.dock-in{justify-content:stretch}.send{width:100%}}
+
+/* ───────── done ───────── */
+.done{max-width:460px;margin:0 auto;text-align:center}
+.fly{position:relative;height:96px;margin:6px auto 4px;width:220px}
+.fly .env{position:absolute;left:14px;top:34px;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);color:var(--brand);box-shadow:var(--shadow-1)}
+.fly .env .i{width:24px;height:24px}
+.fly .calbig{position:absolute;right:14px;top:10px}
+.screen.active .fly .env{animation:flyin 1.3s .15s cubic-bezier(.5,0,.3,1) forwards}
+.screen.active .fly .calbig{animation:catch 1.5s .15s ease forwards}
+@keyframes flyin{0%{transform:none}55%{transform:translate(70px,-34px) rotate(-10deg)}100%{transform:translate(132px,-4px) scale(.35);opacity:0}}
+@keyframes catch{0%,70%{transform:none}80%{transform:scale(1.12) rotate(-3deg)}100%{transform:none}}
+.calbig{width:78px;height:80px;border-radius:18px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-2);overflow:hidden}
+.calbig .ct{height:24px;background:var(--brand);color:var(--on-brand);font-size:11px;font-weight:700;letter-spacing:.14em;display:grid;place-items:center}
+.calbig .cd{font-family:Fraunces,Georgia,serif;font-size:34px;font-weight:650;line-height:54px}
+.calbig .ok{position:absolute;right:-6px;top:-6px;width:26px;height:26px;border-radius:99px;background:var(--t-light);color:#fff;display:grid;place-items:center;transform:scale(0);box-shadow:var(--shadow-1)}
+.calbig{position:relative;overflow:visible}
+.calbig .ct{border-radius:18px 18px 0 0}
+.calbig .ok .i{width:15px;height:15px;stroke-width:3}
+.screen.active .calbig .ok{animation:pop .4s 1.25s cubic-bezier(.3,1.6,.5,1) forwards}
+@keyframes pop{to{transform:scale(1)}}
+
+.ticket{display:grid;grid-template-columns:96px 1fr;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow-2);overflow:hidden;margin-top:10px}
+.ticket .dt{background:var(--brand);color:var(--on-brand);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 8px;position:relative}
+.ticket .dt::after{content:"";position:absolute;right:-1px;top:10px;bottom:10px;border-right:2px dashed color-mix(in srgb,var(--surface) 70%,transparent)}
+.dt .m{font-size:12px;font-weight:700;letter-spacing:.16em}
+.dt .d{font-family:Fraunces,Georgia,serif;font-size:42px;font-weight:650;line-height:1}
+.dt .w{font-size:12px;opacity:.85;margin-top:2px}
+.ticket .info{padding:16px 16px 16px 18px;min-width:0}
+.info .tm{font-family:Fraunces,Georgia,serif;font-size:26px;font-weight:650;line-height:1.1;font-variant-numeric:tabular-nums}
+.info .pl{display:flex;align-items:center;gap:10px;margin-top:10px}
+.info .pl .badge{width:38px;height:38px;border-radius:12px}
+.info .pl .badge .i{width:20px;height:20px}
+.info .pl b{display:block;font-size:15.5px}
+.info .pl span{display:block;font-size:12px;color:var(--ink-2);line-height:1.35}
+.status{display:inline-flex;align-items:center;gap:8px;margin:18px auto 0;padding:8px 14px;border-radius:99px;font-size:13.5px;font-weight:600;background:color-mix(in srgb,var(--st) 12%,transparent);color:var(--st)}
+.status .i{width:16px;height:16px;stroke-width:2.4}
+.actions{display:flex;justify-content:center;gap:14px;margin-top:20px;flex-wrap:wrap}
+.act{display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;text-decoration:none}
+.act .b{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-1);color:var(--brand);transition:transform .15s}
+.act:active .b{transform:scale(.94)}
+.act .b .i{width:22px;height:22px}
+.act span{font-size:11.5px;color:var(--ink-2);font-weight:500}
+.act[hidden]{display:none}
+
+/* ───────── sheet (time) ───────── */
+.scrim{position:fixed;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:520px;max-height:82vh;overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border-radius:26px 26px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.8,.2,1);z-index:41;box-shadow:var(--shadow-2)}
+.sheet:not(.on){visibility:hidden;transition:transform .32s cubic-bezier(.2,.8,.2,1),visibility 0s .32s}
+.sheet.on{transform:none}
+.grab{width:40px;height:5px;border-radius:99px;background:var(--line);margin:0 auto 12px}
+.sheet-h{display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:12px}
+.sheet-h .i{color:var(--brand)}
+.sheet-h .x{margin-left:auto}
+.day-lbl{font-size:12px;font-weight:600;color:var(--ink-2);margin:12px 2px 8px;display:flex;align-items:center;gap:6px}
+.slots{display:flex;flex-wrap:wrap;gap:8px}
+.slot{padding:10px 14px;border-radius:14px;border:1.5px solid var(--line);font-weight:600;font-variant-numeric:tabular-nums;background:var(--surface)}
+.slot.on{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+
+/* ───────── tour ───────── */
+.tour{position:fixed;inset:0;display:grid;place-items:center;z-index:50;padding:16px;pointer-events:none}
+.tour .box{width:min(360px,100%);background:var(--surface);border-radius:28px;box-shadow:var(--shadow-2);padding:16px 16px 18px;transform:scale(.94);opacity:0;transition:all .25s cubic-bezier(.2,.8,.2,1);position:relative}
+.tour.on{pointer-events:auto}
+.tour.on .box{transform:none;opacity:1}
+.tour .x{position:absolute;right:12px;top:12px;z-index:2}
+.stage{position:relative;height:210px;border-radius:20px;background:var(--surface-2);overflow:hidden;cursor:pointer}
+.scene{position:absolute;inset:0;opacity:0;transition:opacity .3s}
+.scene.on{opacity:1}
+.cap{text-align:center;margin-top:14px;min-height:56px}
+.cap b{display:block;font-family:Fraunces,Georgia,serif;font-size:21px;font-weight:650;line-height:1.2}
+.cap small{display:inline-flex;align-items:center;gap:5px;color:var(--ink-2);font-size:12.5px;margin-top:4px}
+.cap small .i{width:13px;height:13px}
+.tdots{display:flex;justify-content:center;gap:7px;margin-top:8px}
+.tdots button{width:8px;height:8px;border-radius:99px;background:var(--line);transition:all .25s}
+.tdots button.on{width:22px;background:var(--brand)}
+
+/* s1 pick */
+.s1{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:12px}
+.mc{position:relative;width:66px;height:88px;border-radius:15px;background:var(--surface);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:7px;padding:10px 9px;box-shadow:var(--shadow-1)}
+.mc i{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+.mc i .i{width:18px;height:18px}
+.mc b{display:block;height:6px;width:100%;border-radius:3px;background:var(--surface-2)}
+.mc b+b{width:70%}
+.mc .ok{position:absolute;top:-9px;right:-9px;width:24px;height:24px;border-radius:99px;background:var(--accent);color:var(--surface);display:grid;place-items:center;transform:scale(0)}
+.mc .ok .i{width:14px;height:14px;stroke-width:3}
+.tap{position:absolute;left:78%;top:82%;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:99px;background:color-mix(in srgb,var(--ink) 16%,transparent);border:2px solid color-mix(in srgb,var(--ink) 55%,transparent);opacity:0}
+.scene.on .s1 .tap{animation:tap 2.6s .1s ease forwards}
+.scene.on .s1 .pick{animation:pickc 2.6s .1s ease forwards}
+.scene.on .s1 .pick .ok{animation:pop .35s 1.65s cubic-bezier(.3,1.6,.5,1) forwards}
+@keyframes tap{0%{opacity:0}12%{opacity:1;left:78%;top:82%}50%{left:50%;top:52%;transform:scale(1)}58%{transform:scale(.7)}66%{transform:scale(1);opacity:1}90%,100%{left:50%;top:52%;opacity:0}}
+@keyframes pickc{0%,55%{}62%{transform:scale(.95)}72%{transform:scale(1.05)}100%{transform:scale(1.05);border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}}
+
+/* s2 invite */
+.s2 .env{position:absolute;left:calc(50% - 110px);top:88px;width:48px;height:48px;border-radius:15px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;color:var(--brand);box-shadow:var(--shadow-1)}
+.s2 .env .i{width:26px;height:26px}
+.s2 .calbig{position:absolute;left:calc(50% + 30px);top:62px}
+.s2 .gl{position:absolute;left:calc(50% + 10px);top:154px;width:118px;text-align:center;font-size:11px;font-weight:600;color:var(--ink-2)}
+.scene.on .s2 .env{animation:flyin2 1.5s .2s cubic-bezier(.5,0,.3,1) forwards}
+@keyframes flyin2{0%{transform:none}55%{transform:translate(80px,-44px) rotate(-10deg)}100%{transform:translate(155px,-4px) scale(.35);opacity:0}}
+.scene.on .s2 .calbig{animation:catch 1.7s .2s ease forwards}
+.scene.on .s2 .calbig .ok{animation:pop .4s 1.45s cubic-bezier(.3,1.6,.5,1) forwards}
+
+/* s3 filled */
+.s3{position:absolute;inset:18px 34px}
+.s3 .hr{height:58px;border-top:1px solid var(--line);font-size:10.5px;color:var(--ink-2);padding:3px 0 0 2px}
+.s3 .ev{position:absolute;left:50px;right:6px;top:29px;height:0;border-radius:12px;background:color-mix(in srgb,var(--brand) 16%,var(--surface));border-left:4px solid var(--brand);overflow:hidden;padding:7px 10px;text-align:left}
+.s3 .ev>*{display:flex;align-items:center;gap:6px;opacity:0;font-size:12.5px}
+.s3 .ev b{font-size:13.5px}
+.s3 .ev .i{width:13px;height:13px;color:var(--brand)}
+.scene.on .s3 .ev{animation:grow .7s .2s cubic-bezier(.2,.8,.2,1) forwards}
+.scene.on .s3 .ev>*:nth-child(1){animation:fade .3s .75s forwards}
+.scene.on .s3 .ev>*:nth-child(2){animation:fade .3s 1.05s forwards}
+.scene.on .s3 .ev>*:nth-child(3){animation:fade .3s 1.35s forwards}
+@keyframes grow{to{height:84px}}
+@keyframes fade{to{opacity:1}}
+
+/* s4 drive */
+.s4>svg{position:absolute;inset:0;width:100%;height:100%}
+.s4 .rt{fill:none;stroke:var(--o-you);stroke-width:4;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1}
+.scene.on .s4 .rt{animation:draw 1.6s .2s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.s4 .etac{position:absolute;right:22px;top:100px;display:flex;align-items:center;gap:7px;padding:7px 11px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow-2);font-weight:600;transform:scale(0)}
+.s4 .etac .bar{width:42px;height:7px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.s4 .etac .bar i{display:block;height:100%;width:0;background:var(--t-mid);border-radius:inherit}
+.s4 .etac .i{width:16px;height:16px;color:var(--o-you)}
+.scene.on .s4 .etac{animation:pop .35s 1.7s cubic-bezier(.3,1.6,.5,1) forwards}
+.scene.on .s4 .etac .bar i{animation:barw .6s 2s ease forwards}
+@keyframes barw{to{width:64%}}
+.s4 .carg{opacity:0;transition:opacity .2s .2s}
+.scene.on .s4 .carg{opacity:1}
+.s4 .lockc{position:absolute;left:30px;top:170px;display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--ink-2);font-weight:600}
+.s4 .lockc .i{width:12px;height:12px}
+
+/* s5 change */
+.s5{position:absolute;inset:0;display:grid;place-items:center}
+.s5 .when{position:relative;box-shadow:var(--shadow-2)}
+.odo{display:inline-block;height:22px;overflow:hidden;vertical-align:bottom}
+.odo .roll{display:flex;flex-direction:column}
+.odo .roll b{height:22px;line-height:22px}
+.scene.on .s5 .roll{animation:roll .5s 1.2s cubic-bezier(.4,1.4,.5,1) forwards}
+@keyframes roll{to{transform:translateY(-22px)}}
+.scene.on .s5 .edit{animation:press 1.3s .3s ease forwards}
+@keyframes press{0%,60%{transform:none;background:var(--surface-2)}70%{transform:scale(.8);background:var(--brand);color:var(--on-brand)}100%{transform:none}}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:13.5px;font-weight:500;opacity:0;transition:all .25s;z-index:60;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body data-screen="home">
+
+<!-- icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></symbol>
+  <symbol id="i-calplus" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18M12 13.5v5M9.5 16h5"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M13 20h8"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7.5 18.5 3 20l1.5-4.5Z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M19.5 10c0 5.6-7.5 12-7.5 12S4.5 15.6 4.5 10a7.5 7.5 0 0 1 15 0Z"/><circle cx="12" cy="10" r="2.8"/></symbol>
+  <symbol id="i-pins" viewBox="0 0 24 24"><path d="M9 9.5c0 4-4.5 8-4.5 8S0 13.5 0 9.5a4.5 4.5 0 0 1 9 0Z" transform="translate(1.5 1)"/><path d="M22.5 7.5c0 4-4.5 8-4.5 8s-4.5-4-4.5-8a4.5 4.5 0 0 1 9 0Z"/><path d="M16.5 15.5c0 3.3-3.8 6.5-3.8 6.5S9 18.8 9 15.5a3.75 3.75 0 0 1 7.5 0Z"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.6"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 16.5h14"/><path d="M3.5 16.5V12l2.2-5.2A2 2 0 0 1 7.5 5.5h9a2 2 0 0 1 1.8 1.3l2.2 5.2v4.5"/><path d="M3.5 12h17"/><path d="M6 16.5V19M18 16.5V19"/><circle cx="7.5" cy="14.2" r=".6"/><circle cx="16.5" cy="14.2" r=".6"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 13.2A8.5 8.5 0 1 1 10.8 3.5a6.6 6.6 0 0 0 9.7 9.7Z"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M10 14 20 4M19 13.5V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4.5"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3.5v11M7.5 10.5 12 15l4.5-4.5M5 20h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6.5 9.5 17 4 11.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M10 8.3v7.4l6-3.7Z"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M11 3.5 12.9 8.6 18 10.5l-5.1 1.9L11 17.5l-1.9-5.1L4 10.5l5.1-1.9Z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8Z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 8c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2"/><path d="M2 13c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2"/><path d="M2 18c2.2 0 2.2-2 4.4-2s2.2 2 4.4 2 2.2-2 4.4-2 2.2 2 4.4 2"/></symbol>
+  <symbol id="i-cake" viewBox="0 0 24 24"><path d="M4 20.5h16v-7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2Z"/><path d="M4 15.5c2 0 2 1.4 4 1.4s2-1.4 4-1.4 2 1.4 4 1.4 2-1.4 4-1.4"/><path d="M12 11.5V8"/><path d="M12 3.6c.9.9 1.2 1.6 1.2 2.2a1.2 1.2 0 0 1-2.4 0c0-.6.3-1.3 1.2-2.2Z"/></symbol>
+  <symbol id="i-cup" viewBox="0 0 24 24"><path d="M16.5 9h1.2a3.3 3.3 0 0 1 0 6.6h-1.6"/><path d="M3.5 9h13v6.5a5 5 0 0 1-5 5h-3a5 5 0 0 1-5-5Z"/><path d="M7 2.5c-.6.8-.6 1.7 0 2.5M10.5 2.5c-.6.8-.6 1.7 0 2.5M14 2.5c-.6.8-.6 1.7 0 2.5"/></symbol>
+  <symbol id="i-dot" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4" fill="currentColor"/></symbol>
+  <symbol id="i-mug" viewBox="0 0 24 24"><path d="M4.5 7h11.5v8.5a4.5 4.5 0 0 1-4.5 4.5H9a4.5 4.5 0 0 1-4.5-4.5Z"/><path d="M16 9.5h1.3a3 3 0 0 1 0 6H16"/><path d="M8 3.5v1.5M11.5 3.5v1.5"/></symbol>
+  <symbol id="i-bean" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="6.2" ry="9" transform="rotate(38 12 12)"/><path d="M8.2 6.6c3.6 2.2 4 8.6 7.6 10.8"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="M22 9.5 12 4.5 2 9.5l10 5Z"/><path d="M6 11.5v5c3.5 2.5 8.5 2.5 12 0v-5"/><path d="M22 9.5v5"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5.5 7.5h13l1 13.5h-15Z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9.5 4.6 4h14.8L21 9.5"/><path d="M4.5 9.5V20h15V9.5"/><path d="M3 9.5h18"/><path d="M10 20v-5h4v5"/></symbol>
+  <symbol id="i-park" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="M9.5 16.5v-9h3.3a2.8 2.8 0 0 1 0 5.6H9.5"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3.5 7 8.5 6 8.5-6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 18 8.5 12l6-6"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M21.5 2.5 10.8 13.2"/><path d="M21.5 2.5 14.8 21.5l-4-8.3-8.3-4Z"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4.5 3.5 6.5v13l5.5-2 6 2 5.5-2v-13l-5.5 2Z"/><path d="M9 4.5v13M15 6.5v13"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18h6a3.5 3.5 0 0 0 0-7h-5a3.5 3.5 0 0 1 0-7h6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8v.1"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M10.3 3.9 2.4 17.6A2 2 0 0 0 4.1 20.6h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9.5v4.5M12 17.2v.1"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4.5M5 4.5h11.5l-2 4 2 4H5"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <button class="icon-btn" id="backBtn" aria-label="Back" title="Back"><svg class="i"><use href="#i-back"/></svg></button>
+    <div class="mark"><svg class="i"><use href="#i-cup"/></svg></div>
+    <div class="spacer"></div>
+    <span class="preview-pill" id="previewPill" hidden>preview</span>
+    <button class="icon-btn pulse" id="tourBtn" aria-label="How this works" title="How this works"><svg class="i"><use href="#i-play"/></svg></button>
+  </header>
+
+  <!-- HOME -->
+  <section class="screen active" id="s-home">
+    <div class="hero">
+      <svg class="glass" viewBox="0 0 120 150" aria-hidden="true">
+        <defs>
+          <linearGradient id="brew" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A9652F"/><stop offset="1" stop-color="#4A2614"/></linearGradient>
+          <clipPath id="cupclip"><path d="M26 30h68l-6.5 106a8 8 0 0 1-8 7.5H40.5a8 8 0 0 1-8-7.5Z"/></clipPath>
+        </defs>
+        <path d="M73 6 64 112" stroke="var(--o-spec)" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M73 6 64 112" stroke="#fff" stroke-opacity=".55" stroke-width="5.5" stroke-linecap="butt" stroke-dasharray="5 7"/>
+        <g clip-path="url(#cupclip)">
+          <rect x="18" y="50" width="86" height="100" fill="url(#brew)"/>
+          <path d="M18 50q11-5 22 0t22 0 22 0 22 0v5H18Z" fill="#C88A52" opacity=".55"/>
+          <g>
+            <rect class="ice" x="34" y="44" width="22" height="20" rx="5" fill="#fff" fill-opacity=".32" stroke="#fff" stroke-opacity=".7" stroke-width="1.5"/>
+            <rect class="ice" x="60" y="56" width="20" height="19" rx="5" fill="#fff" fill-opacity=".28" stroke="#fff" stroke-opacity=".65" stroke-width="1.5"/>
+            <rect class="ice" x="42" y="72" width="19" height="18" rx="5" fill="#fff" fill-opacity=".22" stroke="#fff" stroke-opacity=".55" stroke-width="1.5"/>
+          </g>
+        </g>
+        <path d="M26 30h68l-6.5 106a8 8 0 0 1-8 7.5H40.5a8 8 0 0 1-8-7.5Z" fill="none" stroke="var(--ink-2)" stroke-opacity=".45" stroke-width="2.2"/>
+        <path d="M34.5 40 39 128" stroke="#fff" stroke-opacity=".45" stroke-width="3.5" stroke-linecap="round"/>
+        <circle class="drop" cx="90" cy="70" r="2.2" fill="var(--ocean-line)"/>
+        <circle class="drop" cx="31" cy="96" r="1.8" fill="var(--ocean-line)"/>
+      </svg>
+      <p class="hello" id="hello">Hi there</p>
+      <h1>Coffee chat</h1>
+      <button class="when" data-open-time aria-label="Change time">
+        <svg class="i"><use href="#i-cal"/></svg><span data-when></span>
+        <span class="edit"><svg class="i"><use href="#i-pen"/></svg></span>
+      </button>
+    </div>
+    <div class="choices">
+      <button class="choice" id="goPick">
+        <span class="ico"><svg class="i"><use href="#i-pins"/></svg></span>
+        <b>I'll pick</b>
+        <small><span class="dots3"><i style="background:var(--sea)"></i><i style="background:var(--noir)"></i><i style="background:var(--sage)"></i></span>3 spots</small>
+      </button>
+      <button class="choice alt" id="goLeon">
+        <span class="ico"><svg class="i"><use href="#i-spark"/></svg></span>
+        <b>Leon picks</b>
+        <small>surprise me</small>
+      </button>
+    </div>
+    <p class="fallback"><svg class="i"><use href="#i-mail"/></svg>or just reply to my email</p>
+  </section>
+
+  <!-- PICK -->
+  <section class="screen" id="s-pick">
+    <div class="pick-grid">
+      <div class="mapbox" id="mapbox">
+        <svg id="map" role="img" aria-label="Map of UCI, Irvine Spectrum and the three coffee shops"></svg>
+        <div class="map-legend" id="legend"></div>
+        <button class="icon-btn locate" id="locBtn" aria-label="Use my location for drive time" title="Use my location (only for drive time)"><svg class="i"><use href="#i-locate"/></svg></button>
+        <span class="est" id="estTag" hidden>≈ estimates</span>
+      </div>
+      <div>
+        <div class="cards-head">
+          <button class="lead" data-open-time aria-label="Change time"><svg class="i"><use href="#i-car"/></svg><span data-when-short></span><svg class="i pen"><use href="#i-pen"/></svg></button>
+          <span class="tl"><i style="background:var(--t-light)"></i>light</span>
+          <span class="tl"><i style="background:var(--t-mid)"></i>busy</span>
+          <span class="tl"><i style="background:var(--t-heavy)"></i>heavy</span>
+        </div>
+        <div class="cards" id="cards" role="radiogroup" aria-label="Coffee shops"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DONE -->
+  <section class="screen" id="s-done">
+    <div class="done">
+      <div class="fly" aria-hidden="true">
+        <div class="env"><svg class="i"><use href="#i-mail"/></svg></div>
+        <div class="calbig"><div class="ct" data-mon>NOV</div><div class="cd" data-day>11</div><span class="ok"><svg class="i"><use href="#i-check"/></svg></span></div>
+      </div>
+      <div class="ticket">
+        <div class="dt"><span class="m" data-mon>NOV</span><span class="d" data-day>11</span><span class="w" data-wd>Wed</span></div>
+        <div class="info">
+          <div class="tm" data-time>5:30 PM</div>
+          <div class="pl" id="donePlace"></div>
+        </div>
+      </div>
+      <div class="status" id="doneStatus"></div>
+      <div class="actions">
+        <a class="act" id="aGcal" target="_blank" rel="noopener"><span class="b"><svg class="i"><use href="#i-calplus"/></svg></span><span>Google</span></a>
+        <button class="act" id="aIcs"><span class="b"><svg class="i"><use href="#i-down"/></svg></span><span>.ics</span></button>
+        <a class="act" id="aMap" target="_blank" rel="noopener"><span class="b"><svg class="i"><use href="#i-map"/></svg></span><span>Map</span></a>
+        <button class="act" id="aEdit"><span class="b"><svg class="i"><use href="#i-pen"/></svg></span><span>Change</span></button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="dock">
+  <div class="dock-in">
+    <button class="send" id="sendBtn" disabled>
+      <span class="pick-mini" id="sendMini"></span>
+      <span id="sendLbl">Send invite</span>
+      <svg class="i go"><use href="#i-send"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- time sheet -->
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Pick a time">
+  <div class="grab"></div>
+  <div class="sheet-h"><svg class="i"><use href="#i-clock"/></svg><span>Time</span>
+    <button class="icon-btn x" data-close-sheet aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div id="slotList"></div>
+</div>
+
+<!-- tour -->
+<div class="scrim" id="tourScrim"></div>
+<div class="tour" id="tour" role="dialog" aria-modal="true" aria-label="How this works">
+  <div class="box">
+    <button class="icon-btn x" id="tourClose" aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button>
+    <div class="stage" id="stage">
+      <!-- 1 pick -->
+      <div class="scene" data-cap="Pick a spot" data-sub="">
+        <div class="s1">
+          <div class="mc" style="--accent:var(--sea)"><i><svg class="i"><use href="#i-wave"/></svg></i><b></b><b></b></div>
+          <div class="mc pick" style="--accent:var(--sage)"><i><svg class="i"><use href="#i-mug"/></svg></i><b></b><b></b><span class="ok"><svg class="i"><use href="#i-check"/></svg></span></div>
+          <div class="mc" style="--accent:var(--noir)"><i><svg class="i"><use href="#i-dot"/></svg></i><b></b><b></b></div>
+          <span class="tap"></span>
+        </div>
+      </div>
+      <!-- 2 invite -->
+      <div class="scene" data-cap="Invite lands in your Google Calendar" data-sub="no sign-up">
+        <div class="s2">
+          <div class="env"><svg class="i"><use href="#i-mail"/></svg></div>
+          <div class="calbig"><div class="ct">NOV</div><div class="cd">11</div><span class="ok"><svg class="i"><use href="#i-check"/></svg></span></div>
+          <div class="gl">Google Calendar</div>
+        </div>
+      </div>
+      <!-- 3 filled -->
+      <div class="scene" data-cap="Time & place, filled in" data-sub="">
+        <div class="s3">
+          <div class="hr">5 PM</div><div class="hr">6 PM</div><div class="hr">7 PM</div>
+          <div class="ev"><b><svg class="i"><use href="#i-cup"/></svg>Coffee chat</b><span><svg class="i"><use href="#i-clock"/></svg>5:30 PM</span><span><svg class="i"><use href="#i-pin"/></svg>your pick</span></div>
+        </div>
+      </div>
+      <!-- 4 drive -->
+      <div class="scene" data-cap="Live drive time & traffic" data-sub="location optional · never stored">
+        <div class="s4">
+          <svg viewBox="0 0 330 210" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <path class="rt" pathLength="1" d="M48 150 C 120 150, 120 70, 250 62"/>
+            <circle cx="48" cy="150" r="13" fill="var(--o-you)" opacity=".18"/>
+            <circle cx="48" cy="150" r="7" fill="var(--o-you)" stroke="var(--surface)" stroke-width="3"/>
+            <g transform="translate(250 62)">
+              <path d="M0 0c0-0-14-12-14-22a14 14 0 0 1 28 0c0 10-14 22-14 22Z" fill="var(--sage)"/>
+              <circle cx="0" cy="-22" r="5.5" fill="var(--surface)"/>
+            </g>
+            <g transform="translate(48 150)"><g class="carg">
+              <g transform="translate(-12 -12)"><rect width="24" height="24" rx="8" fill="var(--surface)" stroke="var(--line)"/><use href="#i-car" x="4" y="4" width="16" height="16" style="stroke:var(--ink);fill:none;stroke-width:2"/></g>
+              <animateMotion id="carMotion" dur="1.6s" begin="indefinite" fill="freeze" path="M0 0 C 72 0, 72 -80, 176 -86"/>
+            </g></g>
+          </svg>
+          <div class="etac"><svg class="i"><use href="#i-car"/></svg><span>24 min</span><span class="bar"><i></i></span></div>
+          <div class="lockc"><svg class="i"><use href="#i-lock"/></svg>you</div>
+        </div>
+      </div>
+      <!-- 5 change -->
+      <div class="scene" data-cap="Change anytime" data-sub="the invite updates itself">
+        <div class="s5">
+          <div class="when"><svg class="i"><use href="#i-cal"/></svg><span>Wed, Nov 11 ·</span>
+            <span class="odo"><span class="roll"><b>5:30 PM</b><b>6:00 PM</b></span></span>
+            <span class="edit"><svg class="i"><use href="#i-pen"/></svg></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="cap"><b id="capT"></b><small id="capS"></small></div>
+    <div class="tdots" id="tdots"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   CONFIG — the only part you should need to edit
+   ════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  API_URL: "https://script.google.com/macros/s/AKfycbx59i3_la05X6roLWT4uG2hEBqoTmXjP0AF_XS5mldsRNXwYnci-kz8wqeWF2ZoUqLH/exec",                    // ← Apps Script Web App URL (ends with /exec). Empty = preview mode (no invite sent).
+  MENTOR_NAME: "Christine",       // ← greeting + event title. Empty → "Hi there".
+  HOST: "Leon",
+  TZ: "America/Los_Angeles",
+  DURATION_MIN: 60,
+  // Times both work: Christine = weekdays after 5 PM (Nov 11: after 5:30); Leon = Mon/Wed/Fri (Tue/Thu full-day class).
+  // ISO with offset (PST = -08:00). Must match SLOTS in Code.gs exactly.
+  DEFAULT_SLOT: "2026-11-11T17:30:00-08:00",
+  SLOTS: [
+    "2026-11-09T17:00:00-08:00", "2026-11-09T17:30:00-08:00", "2026-11-09T18:00:00-08:00",   // Mon
+    "2026-11-11T17:30:00-08:00", "2026-11-11T18:00:00-08:00",   // Wed
+    "2026-11-13T17:00:00-08:00", "2026-11-13T17:30:00-08:00", "2026-11-13T18:00:00-08:00",   // Fri
+    "2026-11-16T17:00:00-08:00", "2026-11-16T17:30:00-08:00", "2026-11-16T18:00:00-08:00",   // Mon
+    "2026-11-18T17:00:00-08:00", "2026-11-18T17:30:00-08:00", "2026-11-18T18:00:00-08:00",   // Wed
+    "2026-11-20T17:00:00-08:00", "2026-11-20T17:30:00-08:00", "2026-11-20T18:00:00-08:00",   // Fri
+  ],
+};
+
+// Map + drive-time origins. Coordinates are approximate (preview only); live mode uses Google's geocoding.
+const ORIGINS = [
+  { id: "uci",      label: "UCI",      icon: "cap", color: "var(--o-uci)",  lat: 33.6461, lng: -117.8427 },
+  { id: "spectrum", label: "Spectrum", icon: "bag", color: "var(--o-spec)", lat: 33.6502, lng: -117.7437 },
+];
+const YOU = { id: "you", label: "You", icon: "locate", color: "var(--o-you)" };
+
+// open/close = local "HH:MM" (24h). close:null = unknown → no hours chip, never greyed out.
+const SHOPS = [
+  { id: "play", name: "Play Coffee", area: "Laguna Beach", icon: "wave", accent: "var(--sea)",
+    address: "500 Broadway St, Laguna Beach, CA 92651",
+    url: "https://www.drinkplaycoffee.com",
+    open: "07:00", close: "20:00",
+    chips: [["wave", "Beach town"], ["bean", "Big drink menu"], ["park", "Street parking"]],   // no own lot
+    lat: 33.5445, lng: -117.7830 },
+  { id: "blk", name: "BLK Dot Coffee", area: "Irvine Spectrum Center", icon: "dot", accent: "var(--noir)",
+    address: "924 Spectrum Center Dr, Irvine, CA 92618",
+    url: "https://blkdotcoffee.com",
+    open: "07:00", close: "21:00",
+    chips: [["cup", "Viet coffee"], ["bag", "Inside Spectrum"]],
+    lat: 33.6512, lng: -117.7418 },
+  { id: "mugs", name: "The Mugs", area: "Irvine · Northwood", icon: "mug", accent: "var(--sage)",
+    address: "4840 Irvine Blvd #111, Irvine, CA 92620",
+    url: "https://www.google.com/maps/search/?api=1&query=The+Mugs+4840+Irvine+Blvd+Irvine+CA",   // no official site found
+    open: "07:00", close: "22:00",
+    chips: [["mug", "Cozy café"], ["cake", "Scones & croissants"], ["park", "Free lot"]],
+    lat: 33.7125, lng: -117.7855 },
+];
+
+// Schematic coastline (decorative only).
+const COAST = [[33.66,-117.99],[33.615,-117.925],[33.598,-117.885],[33.585,-117.865],[33.570,-117.840],[33.556,-117.812],[33.546,-117.791],[33.531,-117.773],[33.508,-117.748],[33.47,-117.71],[33.40,-117.62]];
+
+/* ════════════════════════════════════════════════════════════ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const ico = (n, cls = "i") => `<svg class="${cls}"><use href="#i-${n}"/></svg>`;
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const LIVE_API = !!CONFIG.API_URL;
+
+const state = {
+  slot: CONFIG.DEFAULT_SLOT || CONFIG.SLOTS[0],
+  shop: null,          // selected shop id
+  eta: null,           // { shopId: { originId: {min, freeMin, via, leaveBy, poly, est} } }
+  etaLoading: false,
+  etaLive: false,
+  you: null,           // {lat,lng}
+  booked: null,        // {slot, shop, live, failed}
+  sending: false,
+  screen: "home",
+};
+let etaReq = 0;
+
+/* ───────── time helpers ───────── */
+const dtf = opts => new Intl.DateTimeFormat("en-US", { timeZone: CONFIG.TZ, ...opts });
+const fWd = d => dtf({ weekday: "short" }).format(d);
+const fMD = d => dtf({ month: "short", day: "numeric" }).format(d);
+const fT = d => dtf({ hour: "numeric", minute: "2-digit" }).format(d);
+const fMon = d => dtf({ month: "short" }).format(d).toUpperCase();
+const fDay = d => dtf({ day: "numeric" }).format(d);
+const fDate = d => dtf({ year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+const hm = d => dtf({ hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(d);
+const whenText = iso => { const d = new Date(iso); return `${fWd(d)}, ${fMD(d)} · ${fT(d)}`; };
+const fmtHour = hhmm => { const [h, m] = hhmm.split(":").map(Number); const h12 = ((h + 11) % 12) + 1; return `${h12}${m ? ":" + String(m).padStart(2, "0") : ""} ${h < 12 ? "AM" : "PM"}`; };
+const icsStamp = d => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+
+function shopOpen(shop, iso) {
+  if (!shop.close) return true;
+  const s = new Date(iso), e = new Date(s.getTime() + CONFIG.DURATION_MIN * 60000);
+  if (fDate(s) !== fDate(e)) return false;
+  return (!shop.open || hm(s) >= shop.open) && hm(e) <= shop.close;
+}
+
+/* ───────── API ───────── */
+async function apiGet(params) {
+  const u = new URL(CONFIG.API_URL);
+  Object.entries(params).forEach(([k, v]) => u.searchParams.set(k, v));
+  const r = await fetch(u, { redirect: "follow" });
+  return r.json();
+}
+async function apiPost(body) {
+  // text/plain body → no CORS preflight (Apps Script can't answer OPTIONS)
+  const r = await fetch(CONFIG.API_URL, { method: "POST", body: JSON.stringify(body), redirect: "follow" });
+  return r.json();
+}
+
+/* ───────── rough estimate (preview / fallback) ───────── */
+function hav(a, b) {
+  const R = 6371, t = x => x * Math.PI / 180;
+  const dLat = t(b.lat - a.lat), dLng = t(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(t(a.lat)) * Math.cos(t(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function roughEta(o, s, iso) {
+  const d = new Date(iso);
+  const km = hav(o, s) * 1.32;
+  const free = Math.round(km / 50 * 60 + 3);
+  const h = Number(hm(d).slice(0, 2)), wd = fWd(d);
+  const peak = !["Sat", "Sun"].includes(wd) && h >= 16 && h < 19 ? 1.35 : 1.08;
+  const min = Math.round(free * peak);
+  return { min, freeMin: free, via: "", leaveBy: new Date(d.getTime() - (min + 5) * 60000).toISOString(), est: true };
+}
+function demoEta() {
+  const out = {};
+  const origins = [...ORIGINS, ...(state.you ? [{ ...YOU, ...state.you }] : [])];
+  SHOPS.forEach(s => { out[s.id] = {}; origins.forEach(o => out[s.id][o.id] = roughEta(o, s, state.slot)); });
+  return out;
+}
+
+async function loadEta() {
+  const my = ++etaReq;
+  state.etaLoading = true; renderCards();
+  let routes = null, live = false;
+  if (LIVE_API) {
+    try {
+      const p = { action: "eta", slot: state.slot };
+      if (state.you) { p.lat = state.you.lat.toFixed(4); p.lng = state.you.lng.toFixed(4); }
+      const r = await apiGet(p);
+      if (r && r.ok) {
+        routes = r.routes; live = true;
+        if (r.pts) applyPoints(r.pts);
+      }
+    } catch (e) { console.warn("eta failed", e); }
+  }
+  if (my !== etaReq) return;
+  if (!routes) routes = demoEta();
+  else { // fill any gaps with rough estimates
+    const demo = demoEta();
+    SHOPS.forEach(s => { routes[s.id] = routes[s.id] || {}; Object.keys(demo[s.id]).forEach(o => { if (!routes[s.id][o]) routes[s.id][o] = demo[s.id][o]; }); });
+  }
+  state.eta = routes; state.etaLive = live; state.etaLoading = false;
+  renderCards(); drawMap();
+}
+function applyPoints(pts) {
+  (pts.origins && Object.entries(pts.origins) || []).forEach(([id, p]) => { const o = ORIGINS.find(x => x.id === id); if (o && p) Object.assign(o, p); });
+  (pts.shops && Object.entries(pts.shops) || []).forEach(([id, p]) => { const s = SHOPS.find(x => x.id === id); if (s && p) Object.assign(s, p); });
+}
+
+/* ───────── render: shared bits ───────── */
+function renderWhen() {
+  $$("[data-when]").forEach(el => el.textContent = whenText(state.slot));
+  const d = new Date(state.slot);
+  $$("[data-when-short]").forEach(el => el.textContent = `${fWd(d)} ${fT(d)}`);
+}
+function trafficColor(r) {
+  if (!r) return "var(--ink-2)";
+  const k = r.min / Math.max(1, r.freeMin);
+  return k < 1.15 ? "var(--t-light)" : k < 1.4 ? "var(--t-mid)" : "var(--t-heavy)";
+}
+
+/* ───────── render: cards ───────── */
+function renderCards() {
+  const wrap = $("#cards");
+  const origins = [...ORIGINS, YOU];
+  let maxMin = 30;
+  if (state.eta) SHOPS.forEach(s => Object.values(state.eta[s.id] || {}).forEach(r => maxMin = Math.max(maxMin, r.min)));
+  wrap.innerHTML = SHOPS.map(s => {
+    const open = shopOpen(s, state.slot);
+    const sel = state.shop === s.id;
+    const chips = [...s.chips];
+    if (s.close) chips.splice(1, 0, [Number(s.close.slice(0, 2)) >= 19 ? "moon" : "clock", `Till ${fmtHour(s.close)}`]);
+    const rows = origins.map(o => {
+      const oc = `--oc:${o.color}`;
+      const label = `<span class="dl" style="${oc}"><span class="t">${ico(o.icon)}</span>${o.label}</span>`;
+      if (o.id === "you" && !state.you) {
+        return `<div class="drow">${label}<button class="addme" data-locate>${ico("locate")}add my location${ico("lock")}</button></div>`;
+      }
+      const r = state.eta && state.eta[s.id] && state.eta[s.id][o.id];
+      if (state.etaLoading || !r) {
+        return `<div class="drow">${label}<span class="track load"><i></i></span><span class="dm">–</span></div>`;
+      }
+      const w = Math.max(8, Math.round(r.min / maxMin * 100));
+      const sub = [];
+      if (r.via) sub.push(`<span>${ico("route")}${esc(r.via)}</span>`);
+      if (r.leaveBy) sub.push(`<span>${ico("clock")}leave ${fT(new Date(r.leaveBy))}</span>`);
+      return `<div class="drow" title="${r.est ? "rough estimate" : "Google traffic prediction"}">${label}
+        <span class="track"><i style="--w:${w}%;--tc:${trafficColor(r)}"></i></span>
+        <span class="dm">${r.est ? "≈" : ""}${r.min}<small>min</small></span>
+        ${sub.length ? `<div class="ds">${sub.join("")}</div>` : ""}</div>`;
+    }).join("");
+    return `<article class="card${sel ? " sel" : ""}${state.shop && !sel ? " dim" : ""}${open ? "" : " closed"}" data-shop="${s.id}" style="--accent:${s.accent}"
+        role="radio" aria-checked="${sel}" aria-disabled="${!open}" tabindex="0" aria-label="${esc(s.name)}, ${esc(s.area)}">
+      <div class="ch">
+        <span class="badge">${ico(s.icon)}</span>
+        <div class="ttl"><h3>${esc(s.name)}</h3><span>${esc(s.area)}</span></div>
+        <div class="acts">
+          <a class="ext" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(s.name)} website" title="Website" data-stop>${ico("ext")}</a>
+          <span class="radio">${ico("check")}</span>
+        </div>
+      </div>
+      <ul class="chips">${chips.map(([i, t]) => `<li>${ico(i)}${esc(t)}</li>`).join("")}</ul>
+      <div class="closed-tag">${ico("moon")}closed by then</div>
+      <div class="drive">${rows}</div>
+    </article>`;
+  }).join("");
+  $("#estTag").hidden = !(state.eta && !state.etaLive && !state.etaLoading);
+  renderLegend();
+  renderSend();
+}
+
+function renderLegend() {
+  const items = [...ORIGINS, ...(state.you ? [YOU] : [])];
+  $("#legend").innerHTML = items.map(o => `<span class="lg"><i style="background:${o.color}"></i>${o.label}</span>`).join("");
+  $("#locBtn").classList.toggle("on", !!state.you);
+}
+
+function renderSend() {
+  const btn = $("#sendBtn");
+  const s = SHOPS.find(x => x.id === state.shop);
+  const ok = s && shopOpen(s, state.slot);
+  btn.disabled = !ok || state.sending;
+  btn.classList.toggle("has", !!ok);
+  btn.classList.toggle("busy", state.sending);
+  $("#sendMini").innerHTML = ok ? ico(s.icon) : "";
+  const updating = state.booked && state.booked.live;
+  $("#sendLbl").textContent = state.sending ? "Sending…" : ok ? (updating ? `Update invite` : `Send invite`) : "Pick a spot";
+}
+
+/* ───────── map ───────── */
+function decodePoly(str) {
+  let i = 0, lat = 0, lng = 0; const out = [];
+  while (i < str.length) {
+    for (const k of [0, 1]) {
+      let b, shift = 0, res = 0;
+      do { b = str.charCodeAt(i++) - 63; res |= (b & 31) << shift; shift += 5; } while (b >= 32);
+      const v = res & 1 ? ~(res >> 1) : res >> 1;
+      if (k === 0) lat += v; else lng += v;
+    }
+    out.push([lat / 1e5, lng / 1e5]);
+  }
+  return out;
+}
+
+function drawMap() {
+  const svg = $("#map"), box = $("#mapbox");
+  const W = box.clientWidth, H = box.clientHeight;
+  if (!W || !H) return;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const pts = [...ORIGINS, ...SHOPS];
+  const youIn = state.you && hav(state.you, { lat: 33.65, lng: -117.8 }) < 45;
+  if (youIn) pts.push(state.you);
+  let minLat = Math.min(...pts.map(p => p.lat)), maxLat = Math.max(...pts.map(p => p.lat));
+  let minLng = Math.min(...pts.map(p => p.lng)), maxLng = Math.max(...pts.map(p => p.lng));
+  const k = Math.cos((minLat + maxLat) / 2 * Math.PI / 180);
+  const padTop = 86, padBot = 22, padX = 34;            // px, leave room for legend
+  const iw = W - padX * 2, ih = H - padTop - padBot;
+  let dw = (maxLng - minLng) * k, dh = maxLat - minLat;
+  const scale = Math.min(iw / dw, ih / dh);
+  const cx = (minLng + maxLng) / 2, cy = (minLat + maxLat) / 2;
+  const P = (lat, lng) => [W / 2 + (lng - cx) * k * scale, padTop + ih / 2 - (lat - cy) * scale];
+
+  // ocean: coastline + far south-west corner
+  const coast = COAST.map(([a, b]) => P(a, b));
+  const ocean = `M${coast.map(p => p.map(n => n.toFixed(1)).join(" ")).join(" L")} L${-W} ${3 * H} L${-W} ${-H} Z`;
+  const sel = state.shop;
+  const selShop = SHOPS.find(s => s.id === sel);
+
+  let routes = "";
+  if (selShop && state.eta && !state.etaLoading) {
+    const os = [...ORIGINS, ...(youIn ? [{ ...YOU, ...state.you }] : [])];
+    os.forEach(o => {
+      const r = state.eta[selShop.id] && state.eta[selShop.id][o.id];
+      let d;
+      if (r && r.poly) {
+        d = "M" + decodePoly(r.poly).map(([a, b]) => P(a, b).map(n => n.toFixed(1)).join(" ")).join(" L");
+      } else {
+        const [x1, y1] = P(o.lat, o.lng), [x2, y2] = P(selShop.lat, selShop.lng);
+        const mx = (x1 + x2) / 2 + (y2 - y1) * .18, my = (y1 + y2) / 2 - (x2 - x1) * .18;
+        d = `M${x1.toFixed(1)} ${y1.toFixed(1)} Q${mx.toFixed(1)} ${my.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+      }
+      const dash = r && r.poly ? "" : `stroke-dasharray="1 9"`;
+      routes += `<path d="${d}" fill="none" stroke="var(--surface)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+                 <path class="rline" d="${d}" fill="none" stroke="${o.color}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" ${dash}/>`;
+    });
+  }
+
+  const originMarks = [...ORIGINS, ...(youIn ? [{ ...YOU, ...state.you }] : [])].map(o => {
+    const [x, y] = P(o.lat, o.lng);
+    const w = o.label.length * 6.6 + 30;
+    const flip = x + w + 12 > W;
+    const bx = flip ? -w - 2 : 2;
+    return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">
+      ${o.id === "you" ? `<circle r="13" fill="${o.color}" opacity=".18"><animate attributeName="r" values="8;16;8" dur="2.4s" repeatCount="indefinite"/></circle>` : ""}
+      <circle r="6" fill="${o.color}" stroke="var(--surface)" stroke-width="2.5"/>
+      <g transform="translate(${bx + (flip ? 0 : 8)} -12)">
+        <rect width="${w - 8}" height="24" rx="12" fill="var(--surface)" stroke="var(--line)"/>
+        <use href="#i-${o.icon}" x="7" y="5" width="14" height="14" style="stroke:${o.color};fill:none;stroke-width:2"/>
+        <text x="25" y="16.2" font-size="11.5" font-weight="600" fill="var(--ink)" font-family="Inter,system-ui,sans-serif">${o.label}</text>
+      </g></g>`;
+  }).join("");
+
+  const shopMarks = SHOPS.map(s => {
+    const [x, y] = P(s.lat, s.lng);
+    const on = s.id === sel, faded = sel && !on;
+    const r = on ? 19 : 16;
+    return `<g class="shop-pin" data-shop="${s.id}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" style="cursor:pointer;opacity:${faded ? .5 : 1}">
+      <path d="M0 0c0 0-${r * .78}-${r * .9}-${r * .78}-${r * 1.55}a${r * .78} ${r * .78} 0 0 1 ${r * 1.56} 0c0 ${r * .65}-${r * .78} ${r * 1.55}-${r * .78} ${r * 1.55}Z" fill="${on ? s.accent : "var(--surface)"}" stroke="${s.accent}" stroke-width="2.4"/>
+      <use href="#i-${s.icon}" x="${-r * .45}" y="${-r * 2.0}" width="${r * .9}" height="${r * .9}" style="stroke:${on ? "var(--surface)" : s.accent};fill:none;stroke-width:2.2"/>
+    </g>`;
+  }).join("");
+
+  // dot texture on land
+  svg.innerHTML = `
+    <defs><pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="var(--land-dot)"/></pattern></defs>
+    <rect width="${W}" height="${H}" fill="url(#dots)"/>
+    <path d="${ocean}" fill="var(--ocean)" stroke="var(--ocean-line)" stroke-width="1.5"/>
+    ${pacificLabel(P, W, H)}
+    <g>${routes}</g>
+    <g>${originMarks}</g>
+    <g>${shopMarks}</g>`;
+  $$(".rline", svg).forEach(p => {
+    if (p.getAttribute("stroke-dasharray")) { p.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500 }); return; }
+    const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
+    p.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }], { duration: 900, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" });
+  });
+  $$(".shop-pin", svg).forEach(g => g.addEventListener("click", () => selectShop(g.dataset.shop, true)));
+}
+function pacificLabel(P, W, H) {
+  // put the label somewhere over water, near the bottom-left
+  for (const [fx, fy] of [[.16, .9], [.2, .82], [.12, .75]]) {
+    const x = W * fx, y = H * fy;
+    // water test: compare with coastline y at this x (coast runs NW→SE)
+    const c = COAST.map(([a, b]) => P(a, b));
+    for (let i = 0; i < c.length - 1; i++) {
+      const [x1, y1] = c[i], [x2, y2] = c[i + 1];
+      if ((x - x1) * (x - x2) <= 0 && x2 !== x1) {
+        const yc = y1 + (y2 - y1) * (x - x1) / (x2 - x1);
+        if (y > yc + 14) return `<text x="${x}" y="${y}" font-size="11" font-style="italic" letter-spacing=".12em" fill="var(--ocean-line)" font-family="Fraunces,Georgia,serif">Pacific</text>`;
+      }
+    }
+  }
+  return "";
+}
+
+/* ───────── selection ───────── */
+function selectShop(id, scroll) {
+  const s = SHOPS.find(x => x.id === id);
+  if (!s) return;
+  if (!shopOpen(s, state.slot)) { toast(`${s.name} is closed by then`); return; }
+  state.shop = id;
+  renderCards(); drawMap();
+  if (scroll) { const el = $(`.card[data-shop="${id}"]`); el && el.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+}
+$("#cards").addEventListener("click", e => {
+  if (e.target.closest("[data-stop]")) return;
+  if (e.target.closest("[data-locate]")) { e.stopPropagation(); askLocation(); return; }
+  const c = e.target.closest(".card"); if (c) selectShop(c.dataset.shop);
+});
+$("#cards").addEventListener("keydown", e => {
+  const c = e.target.closest(".card"); if (!c) return;
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectShop(c.dataset.shop); }
+});
+
+/* ───────── location ───────── */
+function askLocation() {
+  if (!navigator.geolocation) { toast("Location isn't available here"); return; }
+  const b = $("#locBtn"); b.classList.add("busy");
+  navigator.geolocation.getCurrentPosition(pos => {
+    b.classList.remove("busy");
+    state.you = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    loadEta();
+  }, () => { b.classList.remove("busy"); toast("No worries — location stays off"); },
+  { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 });
+}
+$("#locBtn").addEventListener("click", () => state.you ? toast("Using your location · never stored") : askLocation());
+
+/* ───────── booking ───────── */
+async function book(shopId) {
+  if (state.sending) return;
+  state.sending = true; renderSend();
+  let live = false, failed = false;
+  if (LIVE_API) {
+    try {
+      const r = await apiPost({ action: "book", slot: state.slot, shop: shopId });
+      if (!r || !r.ok) throw new Error(r && r.error || "failed");
+      live = true;
+    } catch (e) { console.warn(e); failed = true; }
+  } else {
+    await sleep(800);
+  }
+  state.sending = false;
+  state.booked = { slot: state.slot, shop: shopId, live, failed };
+  renderSend(); renderDone(); show("done");
+}
+$("#sendBtn").addEventListener("click", () => state.shop && book(state.shop));
+$("#goLeon").addEventListener("click", () => book("leon"));
+$("#goPick").addEventListener("click", () => show("pick"));
+
+/* ───────── done ───────── */
+function eventInfo() {
+  const b = state.booked;
+  const s = SHOPS.find(x => x.id === b.shop);
+  const start = new Date(b.slot), end = new Date(start.getTime() + CONFIG.DURATION_MIN * 60000);
+  const title = `Coffee chat · ${CONFIG.HOST}${CONFIG.MENTOR_NAME ? " × " + CONFIG.MENTOR_NAME : ""}`;
+  const location = s ? `${s.name}, ${s.address}` : `TBD (${CONFIG.HOST} will send the spot)`;
+  const desc = s ? `Cold brew's on ${CONFIG.HOST}.\n${s.url}` : `Cold brew's on ${CONFIG.HOST}. Spot coming soon.`;
+  return { s, start, end, title, location, desc };
+}
+function renderDone() {
+  const b = state.booked; if (!b) return;
+  const { s, start, end, title, location, desc } = eventInfo();
+  $$("[data-mon]").forEach(el => el.textContent = fMon(start));
+  $$("[data-day]").forEach(el => el.textContent = fDay(start));
+  $$("[data-wd]").forEach(el => el.textContent = fWd(start));
+  $("[data-time]").textContent = fT(start);
+  $("#donePlace").innerHTML = s
+    ? `<span class="badge" style="--accent:${s.accent}">${ico(s.icon)}</span><div style="min-width:0"><b>${esc(s.name)}</b><span>${esc(s.address)}</span></div>`
+    : `<span class="badge" style="--accent:var(--o-spec)">${ico("spark")}</span><div><b>${CONFIG.HOST}'s pick</b><span>spot coming soon</span></div>`;
+  const st = $("#doneStatus");
+  if (b.live) { st.style.setProperty("--st", "var(--t-light)"); st.innerHTML = `${ico("check")}Invite sent · check your Google Calendar`; }
+  else if (b.failed) { st.style.setProperty("--st", "var(--t-heavy)"); st.innerHTML = `${ico("warn")}Invite didn't go through — add it here`; }
+  else { st.style.setProperty("--st", "var(--ink-2)"); st.innerHTML = `${ico("info")}Preview · no invite sent`; }
+  const g = new URL("https://calendar.google.com/calendar/render");
+  g.searchParams.set("action", "TEMPLATE"); g.searchParams.set("text", title);
+  g.searchParams.set("dates", `${icsStamp(start)}/${icsStamp(end)}`); g.searchParams.set("details", desc);
+  g.searchParams.set("location", location); g.searchParams.set("ctz", CONFIG.TZ);
+  $("#aGcal").href = g.toString();
+  $("#aGcal").hidden = b.live;                      // invite already in his calendar → avoid duplicates
+  $("#aMap").hidden = !s;
+  if (s) $("#aMap").href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + " " + s.address)}`;
+}
+function downloadIcs() {
+  const { start, end, title, location, desc } = eventInfo();
+  const e = t => String(t).replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/[,;]/g, m => "\\" + m);
+  const fold = l => { const out = []; while (l.length > 74) { out.push(l.slice(0, 74)); l = " " + l.slice(74); } out.push(l); return out.join("\r\n"); };
+  const lines = [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Leon//Coffee Chat//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:coffee-chat-${icsStamp(start)}@leon`,
+    `DTSTAMP:${icsStamp(new Date())}`,
+    `DTSTART:${icsStamp(start)}`, `DTEND:${icsStamp(end)}`,
+    `SUMMARY:${e(title)}`, `LOCATION:${e(location)}`, `DESCRIPTION:${e(desc)}`,
+    "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:Coffee chat", "TRIGGER:-PT60M", "END:VALARM",
+    "END:VEVENT", "END:VCALENDAR",
+  ].map(fold).join("\r\n");
+  const url = URL.createObjectURL(new Blob([lines], { type: "text/calendar;charset=utf-8" }));
+  const a = Object.assign(document.createElement("a"), { href: url, download: "coffee-chat.ics" });
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+$("#aIcs").addEventListener("click", downloadIcs);
+$("#aEdit").addEventListener("click", () => {
+  if (state.booked && state.booked.shop === "leon") { show("home"); return; }
+  if (state.booked) state.shop = state.booked.shop;
+  show("pick");
+});
+
+/* ───────── screens ───────── */
+function show(name, push = true) {
+  state.screen = name;
+  document.body.dataset.screen = name;
+  $$(".screen").forEach(s => s.classList.toggle("active", s.id === "s-" + name));
+  if (push) history.pushState({ s: name }, "");
+  window.scrollTo({ top: 0 });
+  if (name === "pick") {
+    renderCards();
+    requestAnimationFrame(drawMap);
+    if (!state.eta) loadEta();
+  }
+}
+window.addEventListener("popstate", e => show((e.state && e.state.s) || "home", false));
+$("#backBtn").addEventListener("click", () => history.length > 1 ? history.back() : show("home"));
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => state.screen === "pick" && drawMap(), 120); });
+
+/* ───────── time sheet ───────── */
+function renderSlots() {
+  const byDay = {};
+  CONFIG.SLOTS.forEach(iso => { const d = new Date(iso); const k = `${fWd(d)}, ${fMD(d)}`; (byDay[k] = byDay[k] || []).push(iso); });
+  $("#slotList").innerHTML = Object.entries(byDay).map(([day, list]) =>
+    `<div class="day-lbl">${ico("cal")}${day}</div><div class="slots">${list.map(iso =>
+      `<button class="slot${iso === state.slot ? " on" : ""}" data-slot="${iso}">${fT(new Date(iso))}</button>`).join("")}</div>`).join("");
+}
+function openSheet() { renderSlots(); $("#scrim").classList.add("on"); $("#sheet").classList.add("on"); }
+function closeSheet() { $("#scrim").classList.remove("on"); $("#sheet").classList.remove("on"); }
+document.addEventListener("click", e => { if (e.target.closest("[data-open-time]")) openSheet(); });
+$("#scrim").addEventListener("click", closeSheet);
+$("[data-close-sheet]").addEventListener("click", closeSheet);
+$("#slotList").addEventListener("click", e => {
+  const b = e.target.closest("[data-slot]"); if (!b) return;
+  state.slot = b.dataset.slot;
+  const s = SHOPS.find(x => x.id === state.shop);
+  if (s && !shopOpen(s, state.slot)) state.shop = null;
+  renderWhen(); renderSlots();
+  setTimeout(closeSheet, 180);
+  state.eta = null;
+  if (state.screen === "pick") loadEta();
+});
+
+/* ───────── tour ───────── */
+const scenes = $$(".scene");
+let ti = 0, tTimer = null;
+$("#tdots").innerHTML = scenes.map((_, i) => `<button aria-label="Step ${i + 1}" data-ti="${i}"></button>`).join("");
+function showScene(i) {
+  ti = (i + scenes.length) % scenes.length;
+  scenes.forEach((s, k) => {
+    s.classList.remove("on");
+    if (k === ti) { void s.offsetWidth; s.classList.add("on"); }
+  });
+  const s = scenes[ti];
+  $("#capT").textContent = s.dataset.cap;
+  const sub = s.dataset.sub;
+  $("#capS").innerHTML = sub ? `${ico(ti === 3 ? "lock" : "check")}${esc(sub)}` : "";
+  $$("#tdots button").forEach((b, k) => b.classList.toggle("on", k === ti));
+  if (ti === 3) { const m = $("#carMotion"); setTimeout(() => { try { m.beginElement(); } catch (e) {} }, 200); }
+  clearTimeout(tTimer); tTimer = setTimeout(() => showScene(ti + 1), ti === 3 ? 3400 : 2900);
+}
+function openTour() {
+  $("#tourBtn").classList.remove("pulse");
+  $("#tourScrim").classList.add("on"); $("#tour").classList.add("on");
+  showScene(0);
+}
+function closeTour() { clearTimeout(tTimer); $("#tourScrim").classList.remove("on"); $("#tour").classList.remove("on"); }
+$("#tourBtn").addEventListener("click", openTour);
+$("#tourClose").addEventListener("click", closeTour);
+$("#tourScrim").addEventListener("click", closeTour);
+$("#stage").addEventListener("click", () => showScene(ti + 1));
+$("#tdots").addEventListener("click", e => { const b = e.target.closest("[data-ti]"); if (b) showScene(Number(b.dataset.ti)); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closeTour(); closeSheet(); } });
+
+/* ───────── toast ───────── */
+let toastT;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2400); }
+
+/* ───────── init ───────── */
+(async function init() {
+  $("#hello").textContent = CONFIG.MENTOR_NAME ? `Hi ${CONFIG.MENTOR_NAME}` : "Hi there";
+  $("#previewPill").hidden = LIVE_API;
+  history.replaceState({ s: "home" }, "");
+  renderWhen();
+  if (LIVE_API) {
+    try {
+      const r = await apiGet({ action: "state" });
+      if (r && r.ok && r.booking && CONFIG.SLOTS.includes(r.booking.slot)) {
+        state.slot = r.booking.slot;
+        if (r.booking.shop !== "leon") state.shop = r.booking.shop;
+        state.booked = { ...r.booking, live: true };
+        renderWhen(); renderDone(); show("done");
+      }
+    } catch (e) { console.warn("state failed", e); }
+  }
+})();
+</script>
+</body>
+</html>
