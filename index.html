@@ -1247,6 +1247,7 @@ function renderDone() {
   $("#aSync").hidden = !(feed && IS_APPLE);
   $("#appleHint").hidden = !(feed && IS_APPLE);      // a Google-synced iPhone already has the invite → adding it again duplicates
   if (feed) $("#aSync").href = feed.replace(/^https:/, "webcal:") + "&src=sync";
+  prepIcs(b.live);
   $("#aMap").hidden = !s;
   if (s) $("#aMap").href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + " " + s.address)}`;
 }
@@ -1273,19 +1274,34 @@ function saveIcs(text) {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
-// Opening script.google.com itself fails in a browser signed in to Google (Drive's "unable to open the file").
-// The page's own request goes without that sign-in, so hand Safari the googleusercontent URL it lands on.
+// Safari can't be sent to any Google URL for this: on a phone signed in to Google, script.google.com and
+// its googleusercontent hop both end on Drive's "unable to open the file". The page's own request goes
+// without that sign-in, so fetch the feed here and give Safari the file itself as a data: link, ready before the tap.
+let icsText = "", icsReq = 0;
+const icsHref = t => "data:text/calendar;charset=utf-8," + encodeURIComponent(t);
+async function fetchIcs() {
+  const r = await fetch(`${CONFIG.API_URL}?action=ics&src=page`, { redirect: "follow" });
+  const t = await r.text();
+  if (!r.ok || !t.includes("BEGIN:VEVENT")) throw new Error(`ics ${r.status}`);
+  return t;
+}
+function prepIcs(live) {
+  const a = $("#aApple"), n = ++icsReq;
+  icsText = ""; a.href = "#";
+  if (!live) return;
+  fetchIcs().then(t => { if (n === icsReq) { icsText = t; a.href = icsHref(t); } }).catch(err => console.warn(err));
+}
 $("#aApple").addEventListener("click", async e => {
-  e.preventDefault();
   const btn = e.currentTarget;
-  if (!state.booked.live) { downloadIcs(); return; }
+  if (!state.booked.live) { e.preventDefault(); downloadIcs(); return; }
+  if (icsText && IS_APPLE) return;                  // plain tap on the data: link → Calendar's add sheet
+  e.preventDefault();
+  if (icsText) { saveIcs(icsText); return; }
   if (btn.classList.contains("busy")) return;
   btn.classList.add("busy");
   try {
-    const r = await fetch(`${CONFIG.API_URL}?action=ics&src=apple`, { redirect: "follow" });
-    if (!r.ok || !/calendar/.test(r.headers.get("content-type") || "")) throw new Error(`ics ${r.status}`);
-    if (IS_APPLE) location.href = r.url;            // Safari shows Calendar's add sheet for an https .ics
-    else saveIcs(await r.text());
+    const t = await fetchIcs();
+    if (IS_APPLE) location.href = icsHref(t); else saveIcs(t);
   } catch (err) { console.warn(err); downloadIcs(); }
   btn.classList.remove("busy");
 });
