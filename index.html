@@ -1246,7 +1246,7 @@ function renderDone() {
   $("#aAppleLbl").textContent = IS_APPLE ? "Apple" : ".ics";
   $("#aSync").hidden = !(feed && IS_APPLE);
   $("#appleHint").hidden = !(feed && IS_APPLE);      // a Google-synced iPhone already has the invite → adding it again duplicates
-  if (feed) $("#aSync").href = feed.replace(/^https:/, "webcal:");
+  if (feed) $("#aSync").href = feed.replace(/^https:/, "webcal:") + "&src=sync";
   $("#aMap").hidden = !s;
   if (s) $("#aMap").href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + " " + s.address)}`;
 }
@@ -1282,7 +1282,7 @@ $("#aApple").addEventListener("click", async e => {
   if (btn.classList.contains("busy")) return;
   btn.classList.add("busy");
   try {
-    const r = await fetch(`${CONFIG.API_URL}?action=ics`, { redirect: "follow" });
+    const r = await fetch(`${CONFIG.API_URL}?action=ics&src=apple`, { redirect: "follow" });
     if (!r.ok || !/calendar/.test(r.headers.get("content-type") || "")) throw new Error(`ics ${r.status}`);
     if (IS_APPLE) location.href = r.url;            // Safari shows Calendar's add sheet for an https .ics
     else saveIcs(await r.text());
