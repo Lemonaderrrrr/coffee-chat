@@ -264,6 +264,7 @@ body[data-screen="pick"] .dock{display:block}
 .act .b .i{width:22px;height:22px}
 .act span{font-size:11.5px;color:var(--ink-2);font-weight:500}
 .act[hidden]{display:none}
+.ahint{max-width:290px;margin:14px auto 0;font-size:12px;line-height:1.45;color:var(--ink-2)}
 
 /* ───────── sheet (time) ───────── */
 .scrim{position:fixed;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .16s;z-index:40}
@@ -514,6 +515,7 @@ body[data-screen="pick"] .dock{display:block}
         <a class="act" id="aMap" target="_blank" rel="noopener"><span class="b"><svg class="i"><use href="#i-map"/></svg></span><span>Map</span></a>
         <button class="act" id="aEdit"><span class="b"><svg class="i"><use href="#i-pen"/></svg></span><span>Change</span></button>
       </div>
+      <p class="ahint" id="appleHint" hidden>Google Calendar already syncs here? Then you have the invite. No need to add it again.</p>
     </div>
   </section>
 </div>
@@ -1243,6 +1245,7 @@ function renderDone() {
   $("#aApple").href = feed || "#";
   $("#aAppleLbl").textContent = IS_APPLE ? "Apple" : ".ics";
   $("#aSync").hidden = !(feed && IS_APPLE);
+  $("#appleHint").hidden = !(feed && IS_APPLE);      // a Google-synced iPhone already has the invite → adding it again duplicates
   if (feed) $("#aSync").href = feed.replace(/^https:/, "webcal:");
   $("#aMap").hidden = !s;
   if (s) $("#aMap").href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + " " + s.address)}`;
