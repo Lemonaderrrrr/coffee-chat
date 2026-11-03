@@ -1191,18 +1191,18 @@ $("#locBtn").addEventListener("click", () => state.you ? toast("Using your locat
 async function book(shopId) {
   if (state.sending) return;
   state.sending = true; renderSend();
-  let live = false, failed = false;
+  let live = false, failed = false, updated = false;
   if (LIVE_API) {
     try {
       const r = await apiPost({ action: "book", slot: state.slot, shop: shopId });
       if (!r || !r.ok) throw new Error(r && r.error || "failed");
-      live = true;
+      live = true; updated = !!r.updated;
     } catch (e) { console.warn(e); failed = true; }
   } else {
     await sleep(800);
   }
   state.sending = false;
-  state.booked = { slot: state.slot, shop: shopId, live, failed };
+  state.booked = { slot: state.slot, shop: shopId, live, failed, updated };
   renderSend(); renderDone(); show("done");
 }
 $("#sendBtn").addEventListener("click", () => state.shop && book(state.shop));
@@ -1230,7 +1230,7 @@ function renderDone() {
     ? `<span class="badge" style="--accent:${s.accent}">${ico(s.icon)}</span><div style="min-width:0"><b>${esc(s.name)}</b><span>${esc(s.address)}</span></div>`
     : `<span class="badge" style="--accent:var(--o-spec)">${ico("spark")}</span><div><b>${CONFIG.HOST}'s pick</b><span>spot coming soon</span></div>`;
   const st = $("#doneStatus");
-  if (b.live) { st.style.setProperty("--st", "var(--t-light)"); st.innerHTML = `${ico("check")}Invite sent · check your Google Calendar`; }
+  if (b.live) { st.style.setProperty("--st", "var(--t-light)"); st.innerHTML = `${ico("check")}Invite ${b.updated ? "updated" : "sent"} · check your email`; }
   else if (b.failed) { st.style.setProperty("--st", "var(--t-heavy)"); st.innerHTML = `${ico("warn")}Invite didn't go through — add it here`; }
   else { st.style.setProperty("--st", "var(--ink-2)"); st.innerHTML = `${ico("info")}Preview · no invite sent`; }
   const g = new URL("https://calendar.google.com/calendar/render");
