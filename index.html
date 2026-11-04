@@ -525,8 +525,8 @@ body[data-screen="pick"] .dock{display:block}
   <div class="dock-in">
     <button class="send" id="sendBtn" disabled>
       <span class="pick-mini" id="sendMini"></span>
-      <span id="sendLbl">Send invite</span>
-      <svg class="i go"><use href="#i-send"/></svg>
+      <span id="sendLbl">Confirm invite</span>
+      <svg class="i go"><use href="#i-check"/></svg>
     </button>
   </div>
 </div>
@@ -556,11 +556,11 @@ body[data-screen="pick"] .dock{display:block}
         </div>
       </div>
       <!-- 2 invite -->
-      <div class="scene" data-cap="Invite lands in your Google Calendar" data-sub="no sign-up">
+      <div class="scene" data-cap="Leon's invite lands in your calendar" data-sub="no sign-up">
         <div class="s2">
           <div class="env"><svg class="i"><use href="#i-mail"/></svg></div>
           <div class="calbig"><div class="ct">NOV</div><div class="cd">11</div><span class="ok"><svg class="i"><use href="#i-check"/></svg></span></div>
-          <div class="gl">Google Calendar</div>
+          <div class="gl">Calendar</div>
         </div>
       </div>
       <!-- 3 filled -->
@@ -882,7 +882,8 @@ function renderSend() {
   btn.classList.toggle("busy", state.sending);
   $("#sendMini").innerHTML = ok ? ico(s.icon) : "";
   const updating = state.booked && state.booked.live;
-  $("#sendLbl").textContent = state.sending ? "Sending…" : ok ? (updating ? `Update invite` : `Send invite`) : "Pick a spot";
+  $("#sendLbl").textContent = state.sending ? (updating ? "Updating…" : "Confirming…") : ok ? (updating ? "Update invite" : "Confirm invite") : "Pick a spot";
+  $("#sendBtn .go use").setAttribute("href", state.sending ? "#i-sync" : "#i-check");   // Leon sends the invite; she confirms it
 }
 
 /* ───────── map ───────── */
@@ -1233,8 +1234,8 @@ function renderDone() {
     ? `<span class="badge" style="--accent:${s.accent}">${ico(s.icon)}</span><div style="min-width:0"><b>${esc(s.name)}</b><span>${esc(s.address)}</span></div>`
     : `<span class="badge" style="--accent:var(--o-spec)">${ico("spark")}</span><div><b>${CONFIG.HOST}'s pick</b><span>spot coming soon</span></div>`;
   const st = $("#doneStatus");
-  if (b.live) { st.style.setProperty("--st", "var(--t-light)"); st.innerHTML = `${ico("check")}Invite ${b.updated ? "updated" : "sent"} · check your email`; }
-  else if (b.failed) { st.style.setProperty("--st", "var(--t-heavy)"); st.innerHTML = `${ico("warn")}Invite didn't go through — add it here`; }
+  if (b.live) { st.style.setProperty("--st", "var(--t-light)"); st.innerHTML = `${ico("check")}${b.updated ? `Updated · ${CONFIG.HOST}'s invite is updated` : `Confirmed · ${CONFIG.HOST}'s invite is in your email`}`; }
+  else if (b.failed) { st.style.setProperty("--st", "var(--t-heavy)"); st.innerHTML = `${ico("warn")}Couldn't confirm — add it here`; }
   else { st.style.setProperty("--st", "var(--ink-2)"); st.innerHTML = `${ico("info")}Preview · no invite sent`; }
   const g = new URL("https://calendar.google.com/calendar/render");
   g.searchParams.set("action", "TEMPLATE"); g.searchParams.set("text", title);
