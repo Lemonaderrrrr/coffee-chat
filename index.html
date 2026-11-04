@@ -212,7 +212,16 @@ h1{font-family:Fraunces,Georgia,serif;font-weight:650;font-size:clamp(30px,8vw,4
 /* dock */
 .dock{position:fixed;left:0;right:0;bottom:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(to bottom,transparent,var(--bg) 34%);pointer-events:none;z-index:20;display:none}
 body[data-screen="pick"] .dock{display:block}
-.dock-in{max-width:1040px;margin:0 auto;display:flex;justify-content:flex-end;pointer-events:auto}
+.dock-in{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;align-items:flex-end;pointer-events:auto}
+body.notify-on .app{padding-bottom:calc(160px + env(safe-area-inset-bottom))}
+.notify{position:relative;display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px 14px 8px 10px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-1);font-size:13.5px;font-weight:500;color:var(--ink);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.notify[hidden]{display:none}
+.notify input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.notify .sw{position:relative;flex:none;width:36px;height:22px;border-radius:99px;background:var(--line);transition:background .12s}
+.notify .sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.3);transition:transform .12s}
+.notify input:checked + .sw{background:var(--brand)}
+.notify input:checked + .sw::after{transform:translateX(14px)}
+.notify input:focus-visible + .sw{outline:2px solid var(--brand);outline-offset:2px}
 .send{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:220px;height:56px;padding:0 22px;border-radius:18px;background:var(--brand);color:var(--on-brand);font-weight:600;font-size:16px;box-shadow:var(--shadow-2);transition:transform .08s,opacity .1s}
 .send .i{width:20px;height:20px}
 .send:active{transform:scale(.97)}
@@ -220,7 +229,7 @@ body[data-screen="pick"] .dock{display:block}
 .send .pick-mini{display:none;width:26px;height:26px;border-radius:9px;place-items:center;background:color-mix(in srgb,var(--on-brand) 20%,transparent)}
 .send.has .pick-mini{display:grid}
 .send.busy .i.go{animation:spin 1s linear infinite}
-@media (max-width:640px){.dock-in{justify-content:stretch}.send{width:100%}}
+@media (max-width:640px){.dock-in{align-items:stretch}.send{width:100%}.notify{justify-content:center}}
 
 /* ───────── done ───────── */
 .done{max-width:460px;margin:0 auto;text-align:center}
@@ -523,6 +532,7 @@ body[data-screen="pick"] .dock{display:block}
 
 <div class="dock">
   <div class="dock-in">
+    <label class="notify" id="notifyRow" hidden><input type="checkbox" id="notifyChk"><span class="sw"></span><span>Email me the update</span></label>
     <button class="send" id="sendBtn" disabled>
       <span class="pick-mini" id="sendMini"></span>
       <span id="sendLbl">Confirm invite</span>
@@ -680,8 +690,9 @@ const state = {
   etaLoading: false,
   etaLive: false,
   you: null,           // {lat,lng}
-  booked: null,        // {slot, shop, live, failed}
+  booked: null,        // {slot, shop, live, failed, updated, emailed}
   sending: false,
+  notify: false,       // on a change: also email her the update (the first confirmation always emails)
   screen: "home",
 };
 let etaReq = 0;
@@ -884,7 +895,12 @@ function renderSend() {
   const updating = state.booked && state.booked.live;
   $("#sendLbl").textContent = state.sending ? (updating ? "Updating…" : "Confirming…") : ok ? (updating ? "Update invite" : "Confirm invite") : "Pick a spot";
   $("#sendBtn .go use").setAttribute("href", state.sending ? "#i-sync" : "#i-check");   // Leon sends the invite; she confirms it
+  $("#notifyRow").hidden = !updating;
+  document.body.classList.toggle("notify-on", !!updating);
+  $("#notifyChk").checked = state.notify;
+  $("#notifyChk").disabled = state.sending;
 }
+$("#notifyChk").addEventListener("change", e => { state.notify = e.target.checked; });
 
 /* ───────── map ───────── */
 // World units are degrees around REF; a camera (centre + log zoom) maps them to pixels. Sea and routes are canvas
@@ -1195,18 +1211,18 @@ $("#locBtn").addEventListener("click", () => state.you ? toast("Using your locat
 async function book(shopId) {
   if (state.sending) return;
   state.sending = true; renderSend();
-  let live = false, failed = false, updated = false;
+  let live = false, failed = false, updated = false, emailed = true;
   if (LIVE_API) {
     try {
-      const r = await apiPost({ action: "book", slot: state.slot, shop: shopId });
+      const r = await apiPost({ action: "book", slot: state.slot, shop: shopId, notify: state.notify });
       if (!r || !r.ok) throw new Error(r && r.error || "failed");
-      live = true; updated = !!r.updated;
+      live = true; updated = !!r.updated; emailed = r.emailed !== false;
     } catch (e) { console.warn(e); failed = true; }
   } else {
     await sleep(800);
   }
   state.sending = false;
-  state.booked = { slot: state.slot, shop: shopId, live, failed, updated };
+  state.booked = { slot: state.slot, shop: shopId, live, failed, updated, emailed };
   renderSend(); renderDone(); show("done");
 }
 $("#sendBtn").addEventListener("click", () => state.shop && book(state.shop));
@@ -1234,7 +1250,7 @@ function renderDone() {
     ? `<span class="badge" style="--accent:${s.accent}">${ico(s.icon)}</span><div style="min-width:0"><b>${esc(s.name)}</b><span>${esc(s.address)}</span></div>`
     : `<span class="badge" style="--accent:var(--o-spec)">${ico("spark")}</span><div><b>${CONFIG.HOST}'s pick</b><span>spot coming soon</span></div>`;
   const st = $("#doneStatus");
-  if (b.live) { st.style.setProperty("--st", "var(--t-light)"); st.innerHTML = `${ico("check")}${b.updated ? `Updated · ${CONFIG.HOST}'s invite is updated` : `Confirmed · ${CONFIG.HOST}'s invite is in your email`}`; }
+  if (b.live) { st.style.setProperty("--st", "var(--t-light)"); st.innerHTML = `${ico("check")}${!b.updated ? `Confirmed · ${CONFIG.HOST}'s invite is in your email` : b.emailed ? `Updated · ${CONFIG.HOST}'s invite is updated` : "Updated in your calendar · no email"}`; }
   else if (b.failed) { st.style.setProperty("--st", "var(--t-heavy)"); st.innerHTML = `${ico("warn")}Couldn't confirm — add it here`; }
   else { st.style.setProperty("--st", "var(--ink-2)"); st.innerHTML = `${ico("info")}Preview · no invite sent`; }
   const g = new URL("https://calendar.google.com/calendar/render");
@@ -1303,6 +1319,7 @@ $("#aApple").addEventListener("click", async e => {
   btn.classList.remove("busy");
 });
 $("#aEdit").addEventListener("click", () => {
+  state.notify = false;                             // each change starts with the email off
   if (state.booked && state.booked.shop === "leon") { show("home"); return; }
   if (state.booked) state.shop = state.booked.shop;
   show("pick");
