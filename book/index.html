@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meet Leon</title>
+<meta name="description" content="Pick a time to meet Leon.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Same palette and type as the original coffee-chat page (../index.html). */
+:root{
+  --bg:#FAF5EE; --surface:#FFFFFF; --surface-2:#F3EADF; --ink:#2A1F18; --ink-2:#7A6A5D; --line:#EADFD2;
+  --brand:#6F4325; --brand-2:#A86B3C; --on-brand:#FFF8F1; --ok:#2E7D4F; --ok-bg:#E5F3EA; --bad:#B4412F; --bad-bg:#FBE8E4;
+  --shadow-1:0 1px 2px rgba(42,31,24,.06),0 6px 20px rgba(42,31,24,.07);
+  --shadow-2:0 2px 6px rgba(42,31,24,.08),0 18px 44px rgba(42,31,24,.16);
+  --display:"Fraunces", Georgia, serif; --body:"Inter", -apple-system, "Segoe UI", sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#14100D; --surface:#1F1914; --surface-2:#2A221C; --ink:#F4EADF; --ink-2:#B3A291; --line:#3A2F27;
+  --brand:#D9A06A; --brand-2:#E8B888; --on-brand:#1A120C; --ok:#6CCB92; --ok-bg:#16301F; --bad:#F08A78; --bad-bg:#3A1A14;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35); --shadow-2:0 2px 6px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.5);
+  color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --bg:#14100D; --surface:#1F1914; --surface-2:#2A221C; --ink:#F4EADF; --ink-2:#B3A291; --line:#3A2F27;
+  --brand:#D9A06A; --brand-2:#E8B888; --on-brand:#1A120C; --ok:#6CCB92; --ok-bg:#16301F; --bad:#F08A78; --bad-bg:#3A1A14;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35); --shadow-2:0 2px 6px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.5);
+  color-scheme:dark; }
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  padding:max(28px,env(safe-area-inset-top)) 18px max(40px,env(safe-area-inset-bottom))}
+.wrap{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+h1{font-family:var(--display);font-weight:650;font-size:clamp(30px,7vw,40px);line-height:1.12;margin:0;letter-spacing:-.01em}
+h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin:0 0 10px;font-weight:600}
+p{margin:0}
+.muted{color:var(--ink-2)}
+.top{display:flex;align-items:center;gap:10px;color:var(--ink-2);font-size:14px}
+.cup{width:30px;height:30px;border-radius:10px;background:var(--surface);box-shadow:var(--shadow-1);display:grid;place-items:center}
+.cup svg{width:17px;height:17px;stroke:var(--brand);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.intro{display:flex;flex-direction:column;gap:10px}
+.demo{font-size:13px;color:var(--brand);background:var(--surface-2);border-radius:10px;padding:6px 10px;align-self:flex-start}
+
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.mode{font:inherit;color:inherit;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:3px;box-shadow:var(--shadow-1)}
+.mode b{font-weight:600}
+.mode span{font-size:14px;color:var(--ink-2)}
+.mode[aria-pressed="true"]{border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 18%,transparent),var(--shadow-1)}
+
+.days{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:thin}
+.day{font:inherit;color:inherit;flex:none;width:68px;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:8px 0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0}
+.day small{font-size:12px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em}
+.day b{font-family:var(--display);font-size:24px;font-weight:650;line-height:1.2}
+.day i{font-style:normal;font-size:11px;color:var(--ink-2)}
+.day[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.day[aria-pressed="true"] small,.day[aria-pressed="true"] i{color:var(--on-brand);opacity:.85}
+.times{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.time{font:inherit;font-weight:600;font-variant-numeric:tabular-nums;color:inherit;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:9px 14px;cursor:pointer}
+.time[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.tzline{font-size:13px;color:var(--ink-2);margin-top:8px}
+
+select,textarea{font:inherit;color:inherit;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;width:100%}
+textarea{min-height:76px;resize:vertical}
+label.lbl{display:block;font-size:14px;color:var(--ink-2);margin-bottom:6px}
+
+.bar{position:sticky;bottom:max(12px,env(safe-area-inset-bottom));background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-2);padding:12px 12px 12px 16px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.bar .sum{font-size:14px;min-width:0}
+.btn{font:inherit;font-weight:600;border:0;border-radius:14px;padding:12px 18px;cursor:pointer;background:var(--brand);color:var(--on-brand);white-space:nowrap}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--line)}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--brand) 45%,transparent);outline-offset:2px}
+
+.msg{border-radius:14px;padding:10px 14px;font-size:14px}
+.msg.bad{background:var(--bad-bg);color:var(--bad)}
+.msg.ok{background:var(--ok-bg);color:var(--ok)}
+
+.ticket{display:grid;grid-template-columns:96px 1fr;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow-2);overflow:hidden}
+.ticket .dt{background:var(--brand);color:var(--on-brand);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 8px}
+.ticket .dt small{font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+.ticket .dt b{font-family:var(--display);font-size:38px;line-height:1.05;font-weight:650}
+.ticket .info{padding:16px 18px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.ticket .info .t{font-family:var(--display);font-size:24px;font-weight:650}
+.ticket .info a{color:var(--brand);overflow-wrap:anywhere}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.skel{color:var(--ink-2)}
+@media (prefers-reduced-motion:no-preference){ .fade{animation:fade .25s ease both} @keyframes fade{from{opacity:.0;transform:translateY(4px)}to{opacity:1;transform:none}} }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top"><span class="cup" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3v3M12 3v3"/></svg></span><span>Leon Zhou · UC Irvine</span></div>
+  <div id="view"><p class="skel">Loading…</p></div>
+</main>
+
+<script>
+/* ════════════ CONFIG — set API_URL after deploying backend/Code.gs ════════════ */
+const CONFIG = {
+  API_URL: "https://script.google.com/macros/s/AKfycbwh8xvdybPDeJYUvJMsJzvfaERRyhmYq8BN-nVFqfGbIa5wuJ_nrUSn93CEvFeMCec9/exec",
+};
+const TZ = 'America/Los_Angeles';
+
+const qs = new URLSearchParams(location.search);
+const API = qs.get('api') || CONFIG.API_URL;
+const TOKEN = qs.get('c') || '';
+const DEMO = !API || qs.has('demo');
+const view = document.getElementById('view');
+const state = { profile: null, slots: [], booking: null, mode: '', day: '', start: '', place: '', note: '', busy: false, error: '', notice: '' };
+let painted = '';   // fade in only when the page switches between booking and confirmed
+const fadeOnce = kind => { const f = painted !== kind ? 'fade' : ''; painted = kind; return f; };
+
+/* ── API ── */
+async function api(action, data = {}) {
+  if (DEMO) return demoApi(action, data);
+  const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action, token: TOKEN, ...data }), redirect: 'follow' });
+  return r.json();
+}
+
+/* ── formatting (always Pacific Time) ── */
+const fmt = (iso, o) => new Intl.DateTimeFormat('en-US', { timeZone: TZ, ...o }).format(new Date(iso));
+const dayKey = iso => fmt(iso, { year: 'numeric', month: '2-digit', day: '2-digit' });
+const timeLabel = iso => fmt(iso, { hour: 'numeric', minute: '2-digit' });
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const viewerTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+const ERRORS = {
+  bad_link: "This link doesn't look right. Please use the link from Leon's email.",
+  slot_taken: 'That time was just taken. Please pick another one.',
+  already_booked: 'You already have a time with Leon. You can change it below.',
+  default: "Something went wrong. Please try again, or just reply to Leon's email with a time that works.",
+};
+const errText = code => ERRORS[code] || ERRORS.default;
+
+/* ── load ── */
+async function load() {
+  try {
+    const p = await api('profile');
+    if (!p.ok) return fatal(p.error);
+    state.profile = p.profile;
+    state.booking = p.booking;
+    if (!state.booking) await loadSlots();
+    render();
+  } catch (e) { fatal('network'); }
+}
+async function loadSlots() {
+  const s = await api('slots');
+  state.slots = s.ok ? s.slots : [];
+  const days = [...new Set(state.slots.map(dayKey))];
+  if (!days.includes(state.day)) state.day = days[0] || '';
+  if (state.start && !state.slots.includes(state.start)) state.start = '';
+}
+function fatal(code) { view.innerHTML = `<div class="msg bad fade">${esc(errText(code))}</div>`; }
+
+/* ── render ── */
+function render() {
+  if (state.booking) return renderConfirmed();
+  const p = state.profile;
+  const modeSub = { office: p.office ? `${esc(p.office)} · I'll come to you` : "I'll come to you", meet: 'Link comes with the invite', coffee: 'Somewhere close to you on campus' };
+  const days = [...new Set(state.slots.map(dayKey))];
+  const daySlots = state.slots.filter(s => dayKey(s) === state.day);
+  const chosenMode = p.modes.find(m => m.id === state.mode);
+  view.innerHTML = `
+    <div class="${fadeOnce('book')}" style="display:flex;flex-direction:column;gap:26px">
+      <div class="intro">
+        ${DEMO ? '<span class="demo">Preview with sample data. Nothing gets booked.</span>' : ''}
+        <h1>Hi ${esc(p.salutation)},</h1>
+        <p class="muted">Thanks for being open to a quick chat. Pick whatever is easiest for you. It takes about ${p.minutes} minutes.</p>
+      </div>
+      ${state.error ? `<div class="msg bad">${esc(state.error)}</div>` : ''}
+      <section aria-labelledby="h-where">
+        <h2 id="h-where">Where</h2>
+        <div class="modes">${p.modes.map(m => `<button class="mode" type="button" data-mode="${m.id}" aria-pressed="${state.mode === m.id}"><b>${esc(m.label)}</b><span>${modeSub[m.id] || ''}</span></button>`).join('')}</div>
+        ${state.mode === 'coffee' ? (p.coffeePlaces.length
+          ? `<div style="margin-top:12px"><label class="lbl" for="place">Which spot?</label><select id="place"><option value="">Leon can suggest one</option>${p.coffeePlaces.map(x => `<option ${state.place === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div>`
+          : '<p class="tzline">Leon will suggest a spot near your building in the invite.</p>') : ''}
+      </section>
+      <section aria-labelledby="h-when">
+        <h2 id="h-when">When</h2>
+        ${days.length ? `
+          <div class="days" role="group" aria-label="Day">${days.map(d => {
+            const first = state.slots.find(s => dayKey(s) === d);
+            return `<button class="day" type="button" data-day="${d}" aria-pressed="${state.day === d}"><small>${fmt(first, { weekday: 'short' })}</small><b>${fmt(first, { day: 'numeric' })}</b><i>${fmt(first, { month: 'short' })}</i></button>`;
+          }).join('')}</div>
+          <div class="times" role="group" aria-label="Time">${daySlots.map(s => `<button class="time" type="button" data-start="${s}" aria-pressed="${state.start === s}">${timeLabel(s)}</button>`).join('')}</div>
+          <p class="tzline">Times are Pacific Time${viewerTz !== TZ ? ` (your device is set to ${esc(viewerTz)})` : ''}.</p>`
+        : `<div class="msg bad">No open times in the next few weeks. Please reply to Leon's email and he'll find one.</div>`}
+      </section>
+      <section>
+        <label class="lbl" for="note">Anything you'd like Leon to read or bring first? (optional)</label>
+        <textarea id="note" maxlength="500">${esc(state.note)}</textarea>
+      </section>
+      <div class="bar">
+        <div class="sum">${state.start ? `<b>${fmt(state.start, { weekday: 'short', month: 'short', day: 'numeric' })}, ${timeLabel(state.start)}</b><br><span class="muted">${chosenMode ? esc(chosenMode.label) : 'Choose where'}</span>` : '<span class="muted">Choose where and when</span>'}</div>
+        <button class="btn" type="button" id="go" ${state.mode && state.start && !state.busy ? '' : 'disabled'}>${state.busy ? 'Sending…' : 'Send me the invite'}</button>
+      </div>
+    </div>`;
+}
+
+function renderConfirmed() {
+  const b = state.booking;
+  view.innerHTML = `
+    <div class="${fadeOnce('done')}" style="display:flex;flex-direction:column;gap:20px">
+      ${DEMO ? '<span class="demo">Preview with sample data. Nothing was booked.</span>' : ''}
+      <h1>See you then.</h1>
+      <div class="ticket">
+        <div class="dt"><small>${fmt(b.start, { month: 'short' })}</small><b>${fmt(b.start, { day: 'numeric' })}</b><small>${fmt(b.start, { weekday: 'short' })}</small></div>
+        <div class="info">
+          <span class="t">${timeLabel(b.start)} <span class="muted" style="font-family:var(--body);font-size:14px;font-weight:400">Pacific</span></span>
+          <span><b>${esc(b.modeLabel)}</b>${b.mode !== 'meet' ? ` · ${esc(b.place)}` : ''}</span>
+          ${b.meetLink ? `<a href="${esc(b.meetLink)}" target="_blank" rel="noopener">${esc(b.meetLink)}</a>` : ''}
+        </div>
+      </div>
+      ${state.notice ? `<div class="msg ok">${esc(state.notice)}</div>` : '<div class="msg ok">The invite is on its way to your email.</div>'}
+      <div id="change">${state.confirmCancel
+        ? `<div class="row"><span>Cancel this time and pick another?</span><button class="btn" type="button" id="cancelYes">Yes, change it</button><button class="btn ghost" type="button" id="cancelNo">Keep it</button></div>`
+        : `<button class="btn ghost" type="button" id="changeBtn">Change the time</button>`}</div>
+    </div>`;
+}
+
+/* ── events ── */
+document.addEventListener('click', async ev => {
+  const t = ev.target.closest('button');
+  if (!t) return;
+  if (t.dataset.mode) { state.mode = t.dataset.mode; state.error = ''; return render(); }
+  if (t.dataset.day) { state.day = t.dataset.day; state.start = ''; return render(); }
+  if (t.dataset.start) { state.start = t.dataset.start; return render(); }
+  if (t.id === 'go') return submit();
+  if (t.id === 'changeBtn') { state.confirmCancel = true; return render(); }
+  if (t.id === 'cancelNo') { state.confirmCancel = false; return render(); }
+  if (t.id === 'cancelYes') {
+    t.disabled = true;
+    const r = await api('cancel', { id: state.booking.id });
+    if (!r.ok) { state.confirmCancel = false; state.notice = errText(r.error); return render(); }
+    state.booking = null; state.confirmCancel = false; state.start = ''; state.notice = '';
+    await loadSlots(); return render();
+  }
+});
+document.addEventListener('input', ev => {
+  if (ev.target.id === 'note') state.note = ev.target.value;
+  if (ev.target.id === 'place') state.place = ev.target.value;
+});
+document.addEventListener('change', ev => { if (ev.target.id === 'place') state.place = ev.target.value; });
+
+async function submit() {
+  state.busy = true; state.error = ''; render();
+  try {
+    const r = await api('book', { start: state.start, mode: state.mode, place: state.place, note: state.note });
+    state.busy = false;
+    if (r.ok) { state.booking = r.booking; state.notice = ''; return render(); }
+    state.error = errText(r.error);
+    if (r.error === 'slot_taken') await loadSlots();
+    if (r.error === 'already_booked') { const p = await api('profile'); state.booking = p.booking; }
+    render();
+  } catch (e) { state.busy = false; state.error = errText('network'); render(); }
+}
+
+/* ── preview data (no backend) ── */
+const demo = { booking: null };
+function demoSlots() {
+  const out = [];
+  const now = Date.now();
+  for (let d = 1; d <= 21; d++) {
+    const t = new Date(now + d * 864e5);
+    const wd = fmt(t, { weekday: 'short' });
+    if (!['Mon', 'Wed', 'Fri'].includes(wd)) continue;
+    const [m, dd, y] = fmt(t, { year: 'numeric', month: '2-digit', day: '2-digit' }).split('/');
+    for (const hm of ['13:00', '13:30', '14:30', '15:00', '16:00', '16:30']) out.push(`${y}-${m}-${dd}T${hm}:00-08:00`);
+  }
+  return out;
+}
+function demoApi(action, data) {
+  if (action === 'profile') return { ok: true, profile: { salutation: 'Professor Example', host: 'Leon', minutes: 20, office: 'DBH 0000', coffeePlaces: [], modes: [{ id: 'office', label: 'Your office' }, { id: 'meet', label: 'Google Meet' }, { id: 'coffee', label: 'Coffee on campus' }] }, booking: demo.booking };
+  if (action === 'slots') return { ok: true, slots: demoSlots() };
+  if (action === 'book') {
+    const label = { office: 'Your office', meet: 'Google Meet', coffee: 'Coffee on campus' }[data.mode];
+    demo.booking = { id: 'demo', start: data.start, mode: data.mode, modeLabel: label, place: data.mode === 'office' ? 'DBH 0000' : data.mode === 'coffee' ? (data.place || 'Coffee on campus (Leon will suggest a spot)') : 'Google Meet', meetLink: data.mode === 'meet' ? 'https://meet.google.com/preview' : '' };
+    return { ok: true, booking: demo.booking };
+  }
+  if (action === 'cancel') { demo.booking = null; return { ok: true }; }
+  return { ok: false, error: 'unknown_action' };
+}
+
+if (!TOKEN && !DEMO) fatal('bad_link'); else load();
+</script>
+</body>
+</html>

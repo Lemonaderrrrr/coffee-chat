@@ -1,0 +1,5 @@
+# Contact data and keys stay on the laptop.
+*.env
+.outreach.env
+outreach-seed.json
+.DS_Store

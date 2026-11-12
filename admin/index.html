@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>外联进度</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,650&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Same palette as ../index.html and ../book/. Chinese UI, sans body with CJK fallback. */
+:root{
+  --bg:#FAF5EE; --surface:#FFFFFF; --surface-2:#F3EADF; --ink:#2A1F18; --ink-2:#7A6A5D; --line:#EADFD2;
+  --brand:#6F4325; --on-brand:#FFF8F1;
+  --ok:#2E7D4F; --ok-bg:#E5F3EA; --warn:#9A6400; --warn-bg:#FBEFD2; --bad:#B4412F; --bad-bg:#FBE8E4; --idle:#7A6A5D; --idle-bg:#EFE7DD;
+  --t-a:#1F4F8A; --t-a-bg:#E4ECF7; --t-b:#0F6B6B; --t-b-bg:#DDF1F0; --t-c:#5A3FA0; --t-c-bg:#ECE7F8;
+  --shadow-1:0 1px 2px rgba(42,31,24,.06),0 6px 20px rgba(42,31,24,.07); --shadow-2:0 2px 6px rgba(42,31,24,.08),0 18px 44px rgba(42,31,24,.16);
+  --display:"Fraunces", Georgia, serif; --body:"Inter", -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --mono:ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#14100D; --surface:#1F1914; --surface-2:#2A221C; --ink:#F4EADF; --ink-2:#B3A291; --line:#3A2F27; --brand:#D9A06A; --on-brand:#1A120C;
+  --ok:#6CCB92; --ok-bg:#16301F; --warn:#E6B455; --warn-bg:#33270B; --bad:#F08A78; --bad-bg:#3A1A14; --idle:#B3A291; --idle-bg:#2A221C;
+  --t-a:#7AB4F2; --t-a-bg:#1B2A3D; --t-b:#6FD3CF; --t-b-bg:#10302F; --t-c:#B9A5F2; --t-c-bg:#241C40;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35); --shadow-2:0 2px 6px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.5);
+  color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --bg:#14100D; --surface:#1F1914; --surface-2:#2A221C; --ink:#F4EADF; --ink-2:#B3A291; --line:#3A2F27; --brand:#D9A06A; --on-brand:#1A120C;
+  --ok:#6CCB92; --ok-bg:#16301F; --warn:#E6B455; --warn-bg:#33270B; --bad:#F08A78; --bad-bg:#3A1A14; --idle:#B3A291; --idle-bg:#2A221C;
+  --t-a:#7AB4F2; --t-a-bg:#1B2A3D; --t-b:#6FD3CF; --t-b-bg:#10302F; --t-c:#B9A5F2; --t-c-bg:#241C40;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35); --shadow-2:0 2px 6px rgba(0,0,0,.45),0 18px 44px rgba(0,0,0,.5);
+  color-scheme:dark; }
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;padding:max(20px,env(safe-area-inset-top)) 18px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1{font-family:var(--display);font-weight:650;font-size:28px;margin:0}
+h2{font-size:16px;margin:0}
+.muted{color:var(--ink-2)}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.demo{font-size:13px;color:var(--brand);background:var(--surface-2);border-radius:8px;padding:3px 9px}
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:4;padding-top:4px}
+.tab{font:inherit;background:none;border:0;padding:8px 12px;color:var(--ink-2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brand);font-weight:600}
+.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:8px 14px;cursor:pointer;background:var(--brand);color:var(--on-brand)}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn.small{padding:5px 10px;font-size:13px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+input,select,textarea{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 9px;min-width:0}
+textarea{width:100%;min-height:80px;resize:vertical}
+.panel{display:flex;flex-direction:column;gap:18px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-1)}
+.list .item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;padding:12px 16px;cursor:pointer;align-items:center}
+.list .item+.item{border-top:1px solid var(--line)}
+.item:hover{background:var(--surface-2)}
+.item .who{font-weight:600}
+.item .sub{font-size:13px;color:var(--ink-2);grid-column:1}
+.item .side{grid-row:1 / span 2;grid-column:2;text-align:right;font-size:13px;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.pill{display:inline-block;font-size:12px;padding:0 8px;border-radius:999px;line-height:1.7;white-space:nowrap}
+.st-active{color:var(--warn);background:var(--warn-bg)} .st-good{color:var(--ok);background:var(--ok-bg)} .st-idle{color:var(--idle);background:var(--idle-bg)} .st-bad{color:var(--bad);background:var(--bad-bg)}
+.tier{display:inline-block;font-size:11.5px;font-weight:600;padding:0 6px;border-radius:4px}
+.tier.A{color:var(--t-a);background:var(--t-a-bg)} .tier.B{color:var(--t-b);background:var(--t-b-bg)} .tier.C{color:var(--t-c);background:var(--t-c-bg)} .tier.H,.tier.P{color:var(--idle);background:var(--idle-bg)}
+.due{font-family:var(--mono);font-size:12.5px}
+.due.late{color:var(--bad)}
+.empty{padding:18px;color:var(--ink-2)}
+.board{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;align-items:flex-start}
+.col{flex:none;width:230px;background:var(--surface-2);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.col h3{font-size:13px;margin:0 2px 2px;display:flex;justify-content:space-between}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 10px;cursor:pointer;display:flex;flex-direction:column;gap:3px;font-size:13.5px}
+.card b{font-size:14px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12.5px;color:var(--ink-2);font-weight:600;white-space:nowrap}
+tbody tr{cursor:pointer} tbody tr:hover{background:var(--surface-2)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:12.5px;color:var(--ink-2)}
+.field.wide{grid-column:1/-1}
+.drawer-bg{position:fixed;inset:0;background:rgba(30,20,14,.4);z-index:10}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--bg);z-index:11;box-shadow:var(--shadow-2);padding:max(18px,env(safe-area-inset-top)) 18px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.quick{display:flex;gap:8px;flex-wrap:wrap}
+.link{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);border-radius:8px;padding:6px 8px;overflow-wrap:anywhere;user-select:all}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:10px;font-size:14px;z-index:20}
+.gate{max-width:420px;margin:12vh auto 0;display:flex;flex-direction:column;gap:12px}
+.av-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media (max-width:640px){ .grid2{grid-template-columns:minmax(0,1fr)} .col{width:200px} }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="drawer"></div>
+
+<script>
+/* ════════════ CONFIG — same URL as book/index.html ════════════ */
+const CONFIG = {
+  API_URL: "https://script.google.com/macros/s/AKfycbwh8xvdybPDeJYUvJMsJzvfaERRyhmYq8BN-nVFqfGbIa5wuJ_nrUSn93CEvFeMCec9/exec",
+};
+
+const qs = new URLSearchParams(location.search);
+const API = qs.get('api') || CONFIG.API_URL;
+const DEMO = !API || qs.has('demo');
+const BOOK_BASE = new URL('../book/', location.href).href;
+const CLOSED = ['进组', '婉拒', '无回复结案', '暂缓'];
+const GOOD = ['已回', '已约', '已聊', '进组'];
+const S = { key: '', data: null, tab: 'today', filter: { tier: '', stage: '', q: '' }, edit: null, err: '' };
+const $app = document.getElementById('app'), $drawer = document.getElementById('drawer');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date());
+const plusDays = (n) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(new Date(Date.now() + n * 864e5));
+const fmtTime = iso => new Intl.DateTimeFormat('zh-CN', { timeZone: 'America/Los_Angeles', month: 'numeric', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(iso));
+const store = { get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+const stCls = s => CLOSED.includes(s) ? (s === '进组' ? 'st-good' : s === '暂缓' ? 'st-idle' : 'st-bad') : GOOD.includes(s) ? 'st-good' : s === '待研究' ? 'st-idle' : 'st-active';
+const tierKey = t => /^A/.test(t) ? 'A' : /^B/.test(t) ? 'B' : /^C/.test(t) ? 'C' : /挑战/.test(t) ? 'H' : 'P';
+
+async function api(action, data = {}) {
+  if (DEMO) return demoApi(action, data);
+  const r = await fetch(API, { method: 'POST', body: JSON.stringify({ action, key: S.key, ...data }), redirect: 'follow' });
+  return r.json();
+}
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 1800); }
+
+/* ── boot ── */
+async function boot() {
+  S.key = store.get('outreach.key');
+  if (!DEMO && !S.key) return renderGate();
+  const r = await api('admin.list');
+  if (!r.ok) { if (r.error === 'unauthorized') { S.err = '密钥不对，请重新输入。'; return renderGate(); } S.err = '读取失败：' + (r.error || ''); return renderGate(); }
+  S.data = r; render();
+}
+function renderGate() {
+  $app.innerHTML = `<div class="gate box" style="padding:20px">
+    <h1>外联进度</h1>
+    <p class="muted">输入后端的管理密钥（运行 setup() 时在执行日志里）。只存在这台设备上。</p>
+    ${S.err ? `<p style="color:var(--bad)">${esc(S.err)}</p>` : ''}
+    <input id="key" type="password" autocomplete="off" placeholder="管理密钥">
+    <button class="btn" type="button" id="enter">进入</button></div>`;
+}
+
+/* ── views ── */
+const TABS = [['today', '今天'], ['board', '看板'], ['all', '全部'], ['times', '可约时段'], ['import', '导入']];
+function render() {
+  const d = S.data;
+  $app.innerHTML = `
+    <div class="head"><div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><h1>外联进度</h1>${DEMO ? '<span class="demo">预览数据，改动不会保存</span>' : ''}</div>
+      <div style="display:flex;gap:8px"><button class="btn" type="button" id="new">新增联系人</button><button class="btn ghost" type="button" id="refresh">刷新</button></div></div>
+    <nav class="tabs" role="tablist">${TABS.map(t => `<button class="tab" role="tab" type="button" data-tab="${t[0]}" aria-selected="${S.tab === t[0]}">${t[1]}</button>`).join('')}</nav>
+    <section class="panel">${({ today: vToday, board: vBoard, all: vAll, times: vTimes, import: vImport })[S.tab]()}</section>`;
+}
+
+function itemRow(c, side) {
+  return `<div class="item" data-id="${c.id}"><span class="who">${esc(c.name)} <span class="tier ${tierKey(c.tier)}">${esc(c.tier || '')}</span></span>
+    <span class="sub">${esc(c.unit)}${c.notes ? ' · ' + esc(c.notes.slice(0, 60)) : ''}</span><span class="side">${side}</span></div>`;
+}
+function vToday() {
+  const d = S.data, t = today();
+  const due = d.contacts.filter(c => c.next_followup && c.next_followup <= t && !CLOSED.includes(c.stage)).sort((a, b) => a.next_followup.localeCompare(b.next_followup));
+  const soon = d.contacts.filter(c => c.next_followup > t && c.next_followup <= plusDays(7) && !CLOSED.includes(c.stage)).sort((a, b) => a.next_followup.localeCompare(b.next_followup));
+  const meets = d.bookings.filter(b => b.status === 'booked' && new Date(b.end) > new Date()).sort((a, b) => a.start.localeCompare(b.start));
+  const byId = Object.fromEntries(d.contacts.map(c => [c.id, c]));
+  const counts = d.stages.map(s => [s, d.contacts.filter(c => c.stage === s).length]).filter(x => x[1]);
+  return `
+    <div class="filters">${counts.map(([s, n]) => `<span class="pill ${stCls(s)}">${s} ${n}</span>`).join('')}</div>
+    <div><h2>即将见面</h2><div class="box list" style="margin-top:8px">${meets.length ? meets.map(b => {
+      const c = byId[b.contact_id] || { name: '?', unit: '', id: '' };
+      return itemRow(c, `<span class="due">${fmtTime(b.start)}</span><span>${esc(d.modes[b.mode] || b.mode)}${b.mode !== 'meet' ? ' · ' + esc(b.place) : ''}</span>`);
+    }).join('') : '<div class="empty">还没有预约。</div>'}</div></div>
+    <div><h2>今天该跟进（${due.length}）</h2><div class="box list" style="margin-top:8px">${due.length ? due.map(c => itemRow(c, `<span class="pill ${stCls(c.stage)}">${c.stage}</span><span class="due ${c.next_followup < t ? 'late' : ''}">${c.next_followup}</span>`)).join('') : '<div class="empty">今天没有要跟进的。</div>'}</div></div>
+    <div><h2>未来 7 天</h2><div class="box list" style="margin-top:8px">${soon.length ? soon.map(c => itemRow(c, `<span class="pill ${stCls(c.stage)}">${c.stage}</span><span class="due">${c.next_followup}</span>`)).join('') : '<div class="empty">未来 7 天没有安排。</div>'}</div></div>`;
+}
+function vBoard() {
+  const d = S.data;
+  return `<div class="board">${d.stages.map(s => {
+    const cs = d.contacts.filter(c => c.stage === s);
+    return `<div class="col"><h3><span>${s}</span><span class="muted">${cs.length}</span></h3>${cs.map(c => `<div class="card" data-id="${c.id}"><b>${esc(c.name)}</b><span class="muted">${esc(c.unit)}</span><span><span class="tier ${tierKey(c.tier)}">${esc(c.tier || '')}</span>${c.next_followup ? ` <span class="due">${c.next_followup}</span>` : ''}</span></div>`).join('')}</div>`;
+  }).join('')}</div>`;
+}
+function vAll() {
+  const d = S.data, f = S.filter;
+  const tiers = [...new Set(d.contacts.map(c => c.tier).filter(Boolean))];
+  const rows = d.contacts.filter(c => (!f.tier || c.tier === f.tier) && (!f.stage || c.stage === f.stage) &&
+    (!f.q || (c.name + c.unit + c.email + c.notes).toLowerCase().includes(f.q.toLowerCase())));
+  return `<div class="filters">
+      <select id="fTier"><option value="">全部档位</option>${tiers.map(t => `<option ${f.tier === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>
+      <select id="fStage"><option value="">全部阶段</option>${d.stages.map(s => `<option ${f.stage === s ? 'selected' : ''}>${s}</option>`).join('')}</select>
+      <input id="fQ" type="search" placeholder="搜索名字、单位、邮箱、备注" value="${esc(f.q)}"><span class="muted">${rows.length} / ${d.contacts.length}</span></div>
+    <div class="box tbl"><table><thead><tr><th>名字</th><th>单位</th><th>档位</th><th>阶段</th><th>上次联系</th><th>下次跟进</th><th>邮箱</th></tr></thead><tbody>
+    ${rows.map(c => `<tr data-id="${c.id}"><td><b>${esc(c.name)}</b></td><td>${esc(c.unit)}</td><td><span class="tier ${tierKey(c.tier)}">${esc(c.tier)}</span></td><td><span class="pill ${stCls(c.stage)}">${c.stage}</span></td><td class="due">${esc(c.last_contact)}</td><td class="due">${esc(c.next_followup)}</td><td>${esc(c.email)}</td></tr>`).join('')}
+    </tbody></table></div>`;
+}
+const WD = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const WDZ = { Mon: '周一', Tue: '周二', Wed: '周三', Thu: '周四', Fri: '周五', Sat: '周六', Sun: '周日' };
+function vTimes() {
+  const d = S.data, s = d.settings;
+  return `<div class="box" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+      <h2>每周可约时段（太平洋时间）</h2><p class="muted" style="margin:0">预约页只在这些时段里出时间，并自动避开你 Google 日历上已有的安排（全天事件不算）。</p>
+      <div id="avRows" style="display:flex;flex-direction:column;gap:8px">${d.availability.map((a, i) => avRow(a, i)).join('')}</div>
+      <div><button class="btn ghost small" type="button" id="avAdd">加一个时段</button> <button class="btn small" type="button" id="avSave">保存时段</button></div></div>
+    <div class="box" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+      <h2>预约设置</h2>
+      <div class="grid2">
+        <div class="field"><label for="s_meeting">每次见面（分钟）</label><input id="s_meeting" type="number" min="10" max="90" value="${esc(s.meeting_minutes)}"></div>
+        <div class="field"><label for="s_horizon">往后开放几天</label><input id="s_horizon" type="number" min="3" max="60" value="${esc(s.horizon_days)}"></div>
+        <div class="field"><label for="s_notice">至少提前几小时</label><input id="s_notice" type="number" min="0" max="168" value="${esc(s.min_notice_hours)}"></div>
+        <div class="field"><label for="s_host">你在页面上的名字</label><input id="s_host" value="${esc(s.host_name)}"></div>
+        <div class="field wide"><label for="s_coffee">校内咖啡店（一行一个；留空则写"Leon 会推荐离你近的地方"）</label><textarea id="s_coffee">${esc(s.coffee_places)}</textarea></div>
+      </div><div><button class="btn small" type="button" id="setSave">保存设置</button></div></div>`;
+}
+function avRow(a, i) {
+  return `<div class="av-row" data-i="${i}"><select class="av-wd">${WD.map(w => `<option value="${w}" ${String(a.weekday).slice(0, 3) === w ? 'selected' : ''}>${WDZ[w]}</option>`).join('')}</select>
+    <input class="av-s" type="time" value="${esc(a.start)}"> 到 <input class="av-e" type="time" value="${esc(a.end)}">
+    <button class="btn ghost small av-del" type="button">删除</button></div>`;
+}
+function vImport() {
+  return `<div class="box" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+    <h2>批量导入联系人</h2>
+    <p class="muted" style="margin:0">粘贴 JSON 数组，或选文件（比如 <code>outreach-seed.json</code>）。名字和单位都相同的会跳过，可以重复导入。</p>
+    <input id="impFile" type="file" accept=".json,application/json">
+    <textarea id="impText" style="min-height:180px" placeholder='[{"name":"...","unit":"...","tier":"A","email":"...","stage":"待发"}]'></textarea>
+    <div><button class="btn" type="button" id="impGo">导入</button></div></div>`;
+}
+
+/* ── drawer ── */
+const F = [['name', '名字'], ['salutation', '邮件和预约页上的称呼'], ['unit', '单位'], ['category', '类别'], ['tier', '档位'], ['email', '邮箱'], ['office', '办公室'], ['source', '来源']];
+function openDrawer(c) {
+  S.edit = c ? { ...c } : { name: '', salutation: '', unit: '', category: '', tier: '', email: '', office: '', modes: S.data.settings.default_modes, stage: '待研究', last_contact: '', next_followup: '', notes: '', source: '' };
+  const e = S.edit, modes = String(e.modes || S.data.settings.default_modes).split(',');
+  $drawer.innerHTML = `<div class="drawer-bg" id="dbg"></div><aside class="drawer" role="dialog" aria-label="编辑联系人">
+    <div class="head"><h2>${e.id ? esc(e.name) : '新增联系人'}</h2><button class="btn ghost small" type="button" id="dClose">关闭</button></div>
+    ${e.id ? `<div class="quick">
+      <button class="btn ghost small" type="button" data-q="sent">今天发了首封</button>
+      <button class="btn ghost small" type="button" data-q="followed">今天跟进了</button>
+      <button class="btn ghost small" type="button" data-q="replied">对方回复了</button>
+      <button class="btn ghost small" type="button" data-q="met">见过面了</button></div>
+      <div class="field"><label>专属预约链接（对方答应见面后再发）</label><div class="link" id="bookLink">${esc(BOOK_BASE + '?c=' + e.token)}</div><div><button class="btn small" type="button" id="copyLink">复制链接</button></div></div>` : ''}
+    <div class="grid2">
+      ${F.map(([k, l]) => `<div class="field"><label for="e_${k}">${l}</label><input id="e_${k}" value="${esc(e[k])}"></div>`).join('')}
+      <div class="field"><label for="e_stage">阶段</label><select id="e_stage">${S.data.stages.map(s => `<option ${e.stage === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+      <div class="field"><label>见面方式</label><div class="av-row">${Object.entries(S.data.modes).map(([k, l]) => `<label style="display:flex;gap:4px;align-items:center"><input type="checkbox" class="e_mode" value="${k}" ${modes.includes(k) ? 'checked' : ''}>${esc(l)}</label>`).join('')}</div></div>
+      <div class="field"><label for="e_last_contact">上次联系</label><input id="e_last_contact" type="date" value="${esc(e.last_contact)}"></div>
+      <div class="field"><label for="e_next_followup">下次跟进</label><input id="e_next_followup" type="date" value="${esc(e.next_followup)}"></div>
+      <div class="field wide"><label for="e_notes">备注</label><textarea id="e_notes">${esc(e.notes)}</textarea></div>
+    </div>
+    <div style="display:flex;gap:8px"><button class="btn" type="button" id="dSave">保存</button><button class="btn ghost" type="button" id="dCancel">取消</button></div>
+    ${e.id ? `<div><h2>预约记录</h2>${S.data.bookings.filter(b => b.contact_id === e.id).map(b => `<p class="muted" style="margin:6px 0">${fmtTime(b.start)} · ${esc(S.data.modes[b.mode] || b.mode)} · ${b.status === 'booked' ? '已约' : '已取消'}</p>`).join('') || '<p class="muted">没有</p>'}</div>` : ''}
+  </aside>`;
+}
+function readDrawer() {
+  const e = S.edit;
+  F.forEach(([k]) => { e[k] = document.getElementById('e_' + k).value.trim(); });
+  e.stage = document.getElementById('e_stage').value;
+  e.modes = [...document.querySelectorAll('.e_mode:checked')].map(x => x.value).join(',');
+  e.last_contact = document.getElementById('e_last_contact').value;
+  e.next_followup = document.getElementById('e_next_followup').value;
+  e.notes = document.getElementById('e_notes').value;
+  return e;
+}
+async function saveContact(e) {
+  const r = await api('admin.save', { contact: e });
+  if (!r.ok) { toast('没保存：' + r.error); return false; }
+  const i = S.data.contacts.findIndex(c => c.id === r.contact.id);
+  if (i >= 0) S.data.contacts[i] = r.contact; else S.data.contacts.push(r.contact);
+  toast('已保存'); return true;
+}
+
+/* ── events ── */
+document.addEventListener('click', async ev => {
+  const b = ev.target.closest('button, .item, .card, tbody tr');
+  if (!b) return;
+  if (b.id === 'enter') { S.key = document.getElementById('key').value.trim(); store.set('outreach.key', S.key); S.err = ''; return boot(); }
+  if (b.dataset.tab) { S.tab = b.dataset.tab; return render(); }
+  if (b.id === 'refresh') return boot();
+  if (b.id === 'new') return openDrawer(null);
+  if (b.dataset.id && !b.closest('.drawer')) return openDrawer(S.data.contacts.find(c => c.id === b.dataset.id));
+  if (b.id === 'dClose' || b.id === 'dCancel') { $drawer.innerHTML = ''; return; }
+  if (b.id === 'dSave') { if (await saveContact(readDrawer())) { $drawer.innerHTML = ''; render(); } return; }
+  if (b.id === 'copyLink') { const t = document.getElementById('bookLink').textContent; try { await navigator.clipboard.writeText(t); toast('已复制'); } catch (e) { toast('复制失败，请手动选中'); } return; }
+  if (b.dataset.q) {
+    const e = readDrawer(), t = today();
+    if (b.dataset.q === 'sent') Object.assign(e, { stage: '已发', last_contact: t, next_followup: plusDays(10) });
+    if (b.dataset.q === 'followed') Object.assign(e, { stage: '已跟进', last_contact: t, next_followup: plusDays(10) });
+    if (b.dataset.q === 'replied') Object.assign(e, { stage: '已回', last_contact: t, next_followup: plusDays(2) });
+    if (b.dataset.q === 'met') Object.assign(e, { stage: '已聊', last_contact: t, next_followup: plusDays(4) });
+    if (await saveContact(e)) { $drawer.innerHTML = ''; render(); }
+    return;
+  }
+  if (b.id === 'avAdd') { S.data.availability.push({ weekday: 'Mon', start: '13:00', end: '17:00' }); return render(); }
+  if (b.classList.contains('av-del')) { S.data.availability.splice(+b.closest('.av-row').dataset.i, 1); return render(); }
+  if (b.id === 'avSave') {
+    const rows = [...document.querySelectorAll('#avRows .av-row')].map(r => ({ weekday: r.querySelector('.av-wd').value, start: r.querySelector('.av-s').value, end: r.querySelector('.av-e').value }));
+    const r = await api('admin.availability', { rows }); if (r.ok) { S.data.availability = r.availability; toast('时段已保存'); render(); } else toast('没保存：' + r.error); return;
+  }
+  if (b.id === 'setSave') {
+    const settings = { meeting_minutes: document.getElementById('s_meeting').value, horizon_days: document.getElementById('s_horizon').value, min_notice_hours: document.getElementById('s_notice').value, host_name: document.getElementById('s_host').value, coffee_places: document.getElementById('s_coffee').value };
+    const r = await api('admin.settings', { settings }); if (r.ok) { S.data.settings = r.settings; toast('设置已保存'); } else toast('没保存：' + r.error); return;
+  }
+  if (b.id === 'impGo') {
+    let list; try { list = JSON.parse(document.getElementById('impText').value); } catch (e) { return toast('不是有效的 JSON'); }
+    const r = await api('admin.import', { contacts: list }); if (!r.ok) return toast('导入失败：' + r.error);
+    toast(`新增 ${r.added}，跳过 ${r.skipped}`); return boot();
+  }
+});
+document.addEventListener('click', ev => { if (ev.target.id === 'dbg') $drawer.innerHTML = ''; });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') $drawer.innerHTML = ''; if (ev.key === 'Enter' && ev.target.id === 'key') document.getElementById('enter').click(); });
+document.addEventListener('input', ev => {
+  if (ev.target.id === 'fQ') { S.filter.q = ev.target.value; const p = ev.target.selectionStart; render(); const q = document.getElementById('fQ'); q.focus(); q.setSelectionRange(p, p); }
+});
+document.addEventListener('change', async ev => {
+  if (ev.target.id === 'fTier') { S.filter.tier = ev.target.value; render(); }
+  if (ev.target.id === 'fStage') { S.filter.stage = ev.target.value; render(); }
+  if (ev.target.id === 'impFile' && ev.target.files[0]) document.getElementById('impText').value = await ev.target.files[0].text();
+});
+
+/* ── preview data ── */
+const demoDb = {
+  stages: ['待研究', '待发', '已发', '已跟进', '已回', '已约', '已聊', '进组', '暂缓', '婉拒', '无回复结案'],
+  modes: { office: 'Your office', meet: 'Google Meet', coffee: 'Coffee on campus' },
+  settings: { host_name: 'Leon', meeting_minutes: '20', horizon_days: '21', min_notice_hours: '24', coffee_places: '', default_modes: 'office,meet,coffee' },
+  availability: [{ weekday: 'Mon', start: '13:00', end: '17:00' }, { weekday: 'Wed', start: '13:00', end: '17:00' }, { weekday: 'Fri', start: '13:00', end: '17:00' }],
+  contacts: [
+    { id: 'c1', token: 'demo-token-aaaaaaaaaaaa', name: '示例教授 A', salutation: 'Professor A', unit: 'ICS', category: 'A 档', tier: 'A · 第 1 波', email: 'a@example.edu', office: 'DBH 0000', modes: '', stage: '待发', last_contact: '', next_followup: today(), notes: '示例：发前先读他的论文', source: '' },
+    { id: 'c2', token: 'demo-token-bbbbbbbbbbbb', name: '示例教授 B', salutation: 'Professor B', unit: '数学系', category: 'B 档', tier: 'B · 第 2 波', email: 'b@example.edu', office: '', modes: '', stage: '已发', last_contact: plusDays(-12), next_followup: plusDays(-2), notes: '', source: '' },
+    { id: 'c3', token: 'demo-token-cccccccccccc', name: '示例教授 C', salutation: 'Professor C', unit: 'Merage', category: 'B 档', tier: 'B · 第 2 波', email: 'c@example.edu', office: '', modes: '', stage: '已约', last_contact: today(), next_followup: plusDays(5), notes: '', source: '' },
+  ],
+  bookings: [{ id: 'b1', contact_id: 'c3', start: new Date(Date.now() + 5 * 864e5).toISOString(), end: new Date(Date.now() + 5 * 864e5 + 12e5).toISOString(), mode: 'meet', place: 'Google Meet', status: 'booked' }],
+};
+function demoApi(action, data) {
+  if (action === 'admin.list') return { ok: true, ...JSON.parse(JSON.stringify(demoDb)) };
+  if (action === 'admin.save') return { ok: true, contact: { token: 'demo-token-new', ...data.contact, id: data.contact.id || 'c' + Date.now() } };
+  if (action === 'admin.availability') return { ok: true, availability: data.rows };
+  if (action === 'admin.settings') return { ok: true, settings: { ...demoDb.settings, ...data.settings } };
+  if (action === 'admin.import') return { ok: true, added: data.contacts.length, skipped: 0 };
+  return { ok: false, error: 'unknown_action' };
+}
+
+boot();
+</script>
+</body>
+</html>
