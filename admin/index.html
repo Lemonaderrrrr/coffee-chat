@@ -210,9 +210,11 @@ function vTimes() {
         <div class="field wide"><label for="s_coffee">校内咖啡店（一行一个；留空则写"Leon 会推荐离你近的地方"）</label><textarea id="s_coffee">${esc(s.coffee_places)}</textarea></div>
       </div><div><button class="btn small" type="button" id="setSave">保存设置</button></div></div>`;
 }
+// Sheets can hand back a time as "1899-12-30T13:00:00-08:00"; the time input only accepts "13:00".
+const hm = v => { const m = String(v || '').match(/(\d{1,2}):(\d{2})/); return m ? m[1].padStart(2, '0') + ':' + m[2] : ''; };
 function avRow(a, i) {
   return `<div class="av-row" data-i="${i}"><select class="av-wd">${WD.map(w => `<option value="${w}" ${String(a.weekday).slice(0, 3) === w ? 'selected' : ''}>${WDZ[w]}</option>`).join('')}</select>
-    <input class="av-s" type="time" value="${esc(a.start)}"> 到 <input class="av-e" type="time" value="${esc(a.end)}">
+    <input class="av-s" type="time" value="${esc(hm(a.start))}"> 到 <input class="av-e" type="time" value="${esc(hm(a.end))}">
     <button class="btn ghost small av-del" type="button">删除</button></div>`;
 }
 function vImport() {
@@ -223,6 +225,8 @@ function vImport() {
     <textarea id="impText" style="min-height:180px" placeholder='[{"name":"...","unit":"...","tier":"A","email":"...","stage":"待发"}]'></textarea>
     <div><button class="btn" type="button" id="impGo">导入</button></div></div>`;
 }
+
+const readAv = () => [...document.querySelectorAll('#avRows .av-row')].map(r => ({ weekday: r.querySelector('.av-wd').value, start: r.querySelector('.av-s').value, end: r.querySelector('.av-e').value }));
 
 /* ── drawer ── */
 const F = [['name', '名字'], ['salutation', '邮件和预约页上的称呼'], ['unit', '单位'], ['category', '类别'], ['tier', '档位'], ['email', '邮箱'], ['office', '办公室'], ['source', '来源']];
@@ -288,10 +292,10 @@ document.addEventListener('click', async ev => {
     if (await saveContact(e)) { $drawer.innerHTML = ''; render(); }
     return;
   }
-  if (b.id === 'avAdd') { S.data.availability.push({ weekday: 'Mon', start: '13:00', end: '17:00' }); return render(); }
-  if (b.classList.contains('av-del')) { S.data.availability.splice(+b.closest('.av-row').dataset.i, 1); return render(); }
+  if (b.id === 'avAdd') { S.data.availability = readAv(); S.data.availability.push({ weekday: 'Mon', start: '13:00', end: '17:00' }); return render(); }
+  if (b.classList.contains('av-del')) { const i = +b.closest('.av-row').dataset.i; S.data.availability = readAv(); S.data.availability.splice(i, 1); return render(); }
   if (b.id === 'avSave') {
-    const rows = [...document.querySelectorAll('#avRows .av-row')].map(r => ({ weekday: r.querySelector('.av-wd').value, start: r.querySelector('.av-s').value, end: r.querySelector('.av-e').value }));
+    const rows = readAv();
     const r = await api('admin.availability', { rows }); if (r.ok) { S.data.availability = r.availability; toast('时段已保存'); render(); } else toast('没保存：' + r.error); return;
   }
   if (b.id === 'setSave') {
